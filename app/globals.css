@@ -1,0 +1,156 @@
+/* Ahmad & Amin Technology 2026 — Meridian Seal
+   Ink #07080c | Paper #efe7dc | Mute #9a9186
+   Amin signal #9fd7ff | Ahmad signal #c4a574
+   Fault #c45c4a
+*/
+
+@import url("https://fonts.googleapis.com/css2?family=Syne:wght@600;800&family=Vazirmatn:wght@400;600&display=swap");
+
+:root {
+  --ink: #07080c;
+  --paper: #efe7dc;
+  --mute: #9a9186;
+  --amin: #9fd7ff;
+  --ahmad: #c4a574;
+  --fault: #c45c4a;
+  --font-fa: "Vazirmatn", sans-serif;
+  --font-en: "Syne", sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background-color: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-fa);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  overflow-x: hidden;
+}
+
+/* One horizontal meridian — the divide between two brothers */
+.meridian-line {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--mute) 15%,
+    var(--mute) 85%,
+    transparent 100%
+  );
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* Two rings — Amin and Ahmad signals */
+.ring {
+  position: fixed;
+  top: 50%;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0.18;
+}
+
+.ring--amin {
+  border: 4px solid var(--amin);
+  left: 12%;
+  transform: translateY(-50%);
+}
+
+.ring--ahmad {
+  border: 4px solid var(--ahmad);
+  right: 12%;
+  transform: translateY(-50%);
+}
+
+/* Gate panel — asymmetric clip-path, frosted by backdrop-filter on the panel */
+.gate {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 480px;
+  padding: 3rem 2.5rem;
+  background: rgba(7, 8, 12, 0.72);
+  backdrop-filter: blur(24px) saturate(1.1);
+  -webkit-backdrop-filter: blur(24px) saturate(1.1);
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - 28px),
+    calc(100% - 28px) 100%,
+    0 100%
+  );
+}
+
+.gate__kicker {
+  font-family: var(--font-en);
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mute);
+  margin-bottom: 1.25rem;
+}
+
+.gate__title {
+  font-family: var(--font-en);
+  font-weight: 800;
+  font-size: 1.75rem;
+  line-height: 1.2;
+  color: var(--paper);
+  margin-bottom: 1rem;
+}
+
+.gate__subtitle {
+  font-family: var(--font-fa);
+  font-weight: 400;
+  font-size: 1rem;
+  color: var(--mute);
+  line-height: 1.6;
+}
+
+.gate__seal {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+  font-family: var(--font-en);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: var(--mute);
+}
+
+.gate__seal-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.gate__seal-dot--amin {
+  background: var(--amin);
+}
+
+.gate__seal-dot--ahmad {
+  background: var(--ahmad);
+}
