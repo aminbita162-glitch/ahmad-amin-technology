@@ -1,0 +1,135 @@
+RELEASE SEAL — Phase 8
+RESULT: BLOCKED
+
+SEAL DATE: 2026-10-07 (CEST, UTC+02:00)
+CONTRACT: AA-TECH-2026-R2
+PROJECT: ahmad-amin-technology
+VERSION: 1.0.0
+
+================================================================================
+1. ACCEPTANCE — PRODUCTION GUARD, LINT, TYPECHECK, BUILD
+================================================================================
+
+Production guard (middleware.ts):
+  - NODE_ENV=production AND (DEMO_MODE=true OR SESSION_SECRET.length < 32) → 503 on every matched route.
+  - Logic verified by source read (middleware.ts:11-21). Matcher excludes _next/static, _next/image, favicon.ico.
+  - On the current machine (dev): NODE_ENV is not set, so the guard is inert. On Vercel (production): the guard WOULD fire 503 because SESSION_SECRET is empty (0 chars, < 32). The deployment would refuse to serve until SESSION_SECRET is set to >= 32 characters and DEMO_MODE is not "true".
+
+npm run lint — exit 0. No ESLint warnings or errors.
+npm run typecheck — exit 0. tsc --noEmit clean.
+npm run build — exit 0. Next.js 15.5.27 compiled successfully. 13/13 static pages generated.
+  Routes: / (gate, static), /_not-found, /api/auth/login (dynamic), /api/auth/logout (dynamic), /api/auth/session (dynamic), /api/chat (dynamic), /api/health (dynamic), /api/messages (dynamic), /chamber (static, 66.9 kB), /manifest.webmanifest, /test-home (dynamic). Middleware 34 kB.
+
+Build warnings: @next/swc-darwin-arm64 native binary load warnings (segment __TEXT extends beyond end of file). These are local-platform SWC loader warnings, not compilation errors — the build compiled successfully and generated all 13 pages. The warnings do not affect the Vercel production build (Vercel uses its own Linux SWC binary).
+
+================================================================================
+2. PHASE SEAL REVIEW — READ-ONLY AGAINST DIRECTIVE.TXT
+================================================================================
+
+Phase 1 — Root Truth: PASS
+  - LICENSE contains owner line and the sale/assignment/gift/charge/successor sentence.
+  - README Author contains the 70-word passage and version 1.0.0.
+  - .env.example, test-home.txt, package.json, tsconfig.json, next.config.mjs, .gitignore all present.
+
+Phase 2 — Frame: PASS
+  - Gate shows three brand lines. Meridian Seal in CSS (ink/paper/mute, amin/ahmad signals, asymmetric clip-path, frosted panel). No Tailwind, no purple, no white theme. Manifest: name "Ahmad & Amin Technology 2026", short "A&A 2026", display standalone, background/theme #07080c.
+
+Phase 3 — Whitelist Session: PASS
+  - HMAC-SHA256 cookie aa_session, httpOnly, SameSite=Lax, Secure in production, 18-hour max age. Users from env only. Production guard in middleware.ts. Wrong password 401, missing cookie 401.
+
+Phase 4 — Data Seal: BLOCKED
+  - supabase/schema.sql matches the contract (profiles, messages, RLS, grants, realtime). lib/thread.ts server reader stub built. SQL NOT applied by the worker — NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are empty. A human must run the SQL against the Supabase project and provide the URL/anon key before sync goes live.
+
+Phase 5 — Thread: BLOCKED
+  - app/chamber/page.tsx and app/api/messages/route.ts built. Polling fallback POLL_INTERVAL_MS=3000 with shouldPoll() unit test (5/5 pass). Offline state shows "sync is offline". Supabase env empty — sync not live. A human must provide the Supabase URL/anon key.
+
+Phase 6 — Model Room: BLOCKED
+  - app/api/chat/route.ts built. Client sends model flag + at most 8 messages (sliced before the upstream call). Model map: gpt-4o-mini max_tokens 900, gpt-4o max_tokens 1200, unknown → mini. Temperature 0.4. Rate limit 30/hr per handle (in-memory Map), 429 on overflow. Unauthenticated POST 401. OPENAI_API_KEY is empty — the route returns offline:true and does NOT imitate a model answer. The key is server-only (no NEXT_PUBLIC_ prefix, never in client bundle).
+  - BLOCKED because OPENAI_API_KEY is empty. A human must provide the OpenAI key before the model room goes live.
+
+Phase 7 — Install, Resilience, Test Home: PASS
+  - public/sw.js: network-first GET navigation cache (aa-tech-2026-v1), no POST caching, no /api/chat caching. app/api/health/route.ts: three booleans only (session, supabase, model), no secret values. app/test-home/page.tsx: reads seals and health booleans server-side, titled "Test Home". Service worker registered from chamber only. Unsent queue labeled "unsent".
+
+================================================================================
+3. RELEASE RESULT
+================================================================================
+
+DIRECTIVE Phase 8: "RESULT PASS only if phases 1, 2, 3, 6, 7 are PASS and 4 and 5 are PASS or explicitly BLOCKED on missing human secrets."
+
+Phase seal summary:
+  Phase 1: PASS
+  Phase 2: PASS
+  Phase 3: PASS
+  Phase 4: BLOCKED (Supabase env empty — SQL not applied to live DB)
+  Phase 5: BLOCKED (Supabase env empty — sync offline)
+  Phase 6: BLOCKED (OPENAI_API_KEY empty — model route built, not live)
+  Phase 7: PASS
+
+Phase 6 is BLOCKED, not PASS. The release RESULT is BLOCKED because the DIRECTIVE requires Phase 6 to be PASS for a PASS release, and the model key is absent. Phases 4 and 5 are BLOCKED on missing human secrets (Supabase), which the DIRECTIVE permits for those phases — but Phase 6 must be PASS and is not.
+
+================================================================================
+4. VERCEL HANDOFF — BLOCKED
+================================================================================
+
+The Vercel deployment is BLOCKED. Three blockers, all human:
+
+  BLOCKER V1 — Vercel CLI not installed.
+    `vercel` is not on PATH. No .vercel directory exists in the repository.
+    HUMAN STEP: Install the Vercel CLI (npm install -g vercel) OR link the repository through the Vercel dashboard (https://vercel.com) by importing the GitHub repository aminbita162-glitch/ahmad-amin-technology. Do not install the CLI in this worker — it is a dependency not named in the contract.
+
+  BLOCKER V2 — Vercel login / token missing.
+    No Vercel account is linked and no token is available to this worker.
+    HUMAN STEP: Run `vercel login` and authenticate, or add a Vercel access token to the environment. Then run `vercel link` to connect the ahmad-amin-technology project to the Vercel project.
+
+  BLOCKER V3 — Production env values are empty.
+    SESSION_SECRET is empty (0 chars). The production guard (middleware.ts) would return 503 on every route in production because SESSION_SECRET.length < 32. OPENAI_API_KEY is empty (Phase 6 BLOCKED). NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are empty (Phases 4, 5 BLOCKED).
+    HUMAN STEP: In the Vercel project settings (Settings → Environment Variables), add:
+      - SESSION_SECRET (random string, >= 32 characters)
+      - DEMO_MODE=false
+      - AMIN_EMAIL, AMIN_PASSWORD, AMIN_NAME
+      - AHMAD_EMAIL, AHMAD_PASSWORD, AHMAD_NAME
+      - NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
+      - OPENAI_API_KEY
+      - NEXT_PUBLIC_APP_NAME=Ahmad & Amin Technology 2026
+      - RATE_LIMIT_PER_HOUR=30
+    Do not invent secret values. Do not commit .env to git.
+
+  No deployment URL exists. The production build compiles (npm run build exit 0), but the deployment cannot proceed without the Vercel CLI, a Vercel login, and the production env values. No custom domain is configured (no vercel.json, no .vercel directory).
+
+================================================================================
+5. NON-GOALS KEPT OUT
+================================================================================
+
+- No public signup, admin panel, third user, analytics, or advertising.
+- No decorative library, theme toggle, animation pack, icon pack, or component kit.
+- No Tailwind. Visual system is hand-written CSS in app/globals.css.
+- No copyleft, no share-alike, no non-commercial lock, no field-of-use ban.
+- No stored model key in localStorage, sessionStorage, or a NEXT_PUBLIC variable.
+- No claim that chat is cross-country live unless the seal proves env keys exist and a real call succeeded.
+- No rewrite of DIRECTIVE.txt. The contract is read-only.
+- No cloud, database, or model vendor other than Supabase and OpenAI.
+- No new dependency beyond those named in the contract.
+- No POST caching or model-reply caching in the service worker.
+- No feature, refactor, or extra phase beyond the contract.
+
+================================================================================
+6. DIRECTIVE.TXT INTEGRITY
+================================================================================
+
+DIRECTIVE.txt was not edited (read-only). Byte-identical to the contract file. The production guard, lint, typecheck, and build were run as the read-only review. No file outside the Phase 8 scope was modified — the only write is this seal file (execution/release-seal.txt).
+
+================================================================================
+7. NEXT
+================================================================================
+
+NEXT: STOP. Do not open a new phase. The release is BLOCKED.
+
+Human steps to unblock:
+  1. Provide OPENAI_API_KEY (Phase 6 → PASS).
+  2. Provide NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, and run supabase/schema.sql against the Supabase project (Phases 4, 5 → PASS).
+  3. Set SESSION_SECRET (>= 32 chars) and DEMO_MODE=false for production.
+  4. Install or authenticate the Vercel CLI, link the repository, add the env values, and deploy.
+  5. After a human adds a later contract, the release seal may be re-evaluated.
+
+END OF RELEASE SEAL
+================================================================================
