@@ -1,0 +1,12 @@
+Test Home
+
+Visible route: /test-home
+
+This is the root file. If a phase seal was missing, that phase was not completed.
+
+Live sections:
+- Sync (Supabase): this section is not yet live.
+- Model (OpenAI): this section is not yet live.
+
+Each phase writes its seal to execution/phase-N-seal.txt when it ends.
+If a seal is missing, the phase is not done.

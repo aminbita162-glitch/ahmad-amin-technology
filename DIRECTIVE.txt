@@ -1,0 +1,206 @@
+DIRECTIVE.txt
+CONTRACT ID: AA-TECH-2026-R2
+PROJECT SLUG: ahmad-amin-technology
+PRODUCT TITLE: Ahmad & Amin Technology 2026
+VERSION TARGET: 1.0.0
+STATUS: IMMUTABLE EXECUTION CONTRACT
+LANGUAGE OF UI: Persian first, English brand lines kept verbatim
+
+================================================================================
+0. LICENSE — WRITE THIS FILE FIRST, BEFORE ANY OTHER FILE
+================================================================================
+
+Create ./LICENSE. This is an owner-freedom instrument, not a restrictive notice and not a public grant.
+
+Copyright (c) 2026 Amin Azimi.
+Amin Azimi — AI Architect.
+Practice: end-to-end system development and business challenge.
+Personal brand: Azimi Innovation Lab.
+
+The copyright holder, and after the holder every lawful heir, estate, and successor, holds the full and unqualified right to use, modify, develop, finish, host, sell, assign, transfer, license, sublicense, gift, publish, charge for, or withhold this project, in whole or in part, in any form, for any price or for none, in any country. No clause in this repository limits those acts. No copyleft, no share-alike, no non-commercial lock, no field-of-use ban, no time limit.
+
+Third parties receive rights only when the holder or a successor grants them in writing. Absence of a grant is not a ban on the holder. Secrets, keys, and private message contents are not part of the licensed work and must never be committed.
+
+Owner line, unchanged:
+Amin Azimi | AI Architect | End-to-end system development | Business challenge | Azimi Innovation Lab
+
+================================================================================
+1. STERILE CONTAINER — THE ONLY PERMITTED BEHAVIOR
+================================================================================
+
+The worker executing this file is inside a sealed container.
+
+PERMITTED
+- Read this file and the repository root.
+- Create or edit only the files named in the active phase.
+- Run the commands named in the active phase.
+- Stop and write a seal if a required secret or external project is missing.
+- Append to ./execution/phase-N-seal.txt at the end of each phase.
+
+FORBIDDEN
+- Any product feature not named in this contract.
+- Any new dependency not named in this contract.
+- Any cloud, database, or model vendor other than Supabase and OpenAI.
+- Any write of a real secret into git, into this file, into README, or into client code.
+- Any rewrite of DIRECTIVE.txt. This contract is read-only.
+- Any claim that chat is cross-country live, or that the model answered, unless the seal proves the env keys exist and a real call succeeded.
+- Any decorative library, theme toggle, animation pack, icon pack, or component kit.
+- Any public signup, admin panel, third user, analytics, or advertising.
+- Any stored model key in localStorage, sessionStorage, or a NEXT_PUBLIC variable.
+
+DETERMINISM
+- Missing input is a stop, not a silent fake success.
+- Demo login exists only when DEMO_MODE=true.
+- Production boot must refuse to start if DEMO_MODE=true or SESSION_SECRET is shorter than 32 characters.
+- Versions below are floors. Do not float to a different major.
+
+STACK FLOOR
+- Node 20
+- Next.js 15 App Router, React 19, TypeScript strict
+- No Tailwind package. Visual system is hand-written CSS in app/globals.css
+- Supabase Postgres + Realtime, used only after env exists
+- OpenAI chat completions, server route only
+- Default model gpt-4o-mini, explicit switch gpt-4o
+- Deploy target Vercel, custom domain preferred over vercel.app
+
+ENV CONTRACT — names only, never values, in .env.example
+NEXT_PUBLIC_APP_NAME=Ahmad & Amin Technology 2026
+SESSION_SECRET=
+DEMO_MODE=false
+AMIN_EMAIL=
+AMIN_PASSWORD=
+AMIN_NAME=Amin
+AHMAD_EMAIL=
+AHMAD_PASSWORD=
+AHMAD_NAME=Ahmad
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+OPENAI_API_KEY=
+RATE_LIMIT_PER_HOUR=30
+
+If NEXT_PUBLIC_SUPABASE_URL or OPENAI_API_KEY is empty, build the code path, then seal BLOCKED for live proof. Do not invent hosts.
+
+================================================================================
+2. PRODUCT BOUNDARY
+================================================================================
+
+Two people. Amin, Germany. Ahmad, Iran.
+Three screens only: gate, private thread, isolated model room.
+Gate brand, verbatim:
+  kicker: AI Architect Amin Azimi
+  title: Ahmad & Amin Technology 2026
+  subtitle: The exclusive two-brothers app
+Speed is a requirement: optimistic send, no extra round trip before paint, server work only for auth and model.
+Iran path: same origin for chat and model. WebSocket may die. Polling fallback is mandatory, 3000 ms, only while the socket is down.
+Typing indicator is allowed only from a remote typing event. Never from the local keystroke.
+
+VISUAL SYSTEM — this is the product frame, not decoration
+Name: Meridian Seal.
+Ink #07080c. Paper #efe7dc. Mute #9a9186.
+Amin signal, glacial #9fd7ff. Ahmad signal, oxidized copper #c4a574.
+Fault only, dried seal #c45c4a.
+One horizontal meridian. Two rings. Panels use an asymmetric clip-path, frosted only by backdrop-filter on the panel, not on the page.
+Type: Vazirmatn for Persian, Syne for the English title. No other fonts.
+No purple, no neon grid marketplace look, no card-radius soup, no white theme.
+
+README AUTHOR BLOCK
+Create ./README.md with a section titled exactly "Author".
+Under it write Amin Azimi, surname Azimi, role AI Architect, practice end-to-end system development and business challenge, brand Azimi Innovation Lab, project Ahmad & Amin Technology 2026, version 1.0.0.
+Then paste this passage exactly, 70 words, under Author:
+
+This project is Ahmad & Amin Technology 2026, version 1.0.0, by Amin Azimi of Azimi Innovation Lab. The running app is a private two-person meridian between Germany and Iran, with whitelist access, row-level privacy, and a server-side model room. It is not a public network and not a third-account host. The owner and successors may sell, assign, license, gift, charge, or keep developing it without restriction from this authorship record.
+
+HONESTY RULE
+Every promise in this contract must appear in ./README.md and, where it is a root artifact, as its own file at the repository root. Do not hide scope in chat. If a live dependency is missing, README must say so in the plain line: this section is not yet live.
+
+TEST HOME
+Create root file ./test-home.txt and route app/test-home/page.tsx titled Test Home.
+The page is a sealed checklist, not a toy. It lists phase seals, health booleans, and whether sync and model are live or blocked. It must be reachable from the chamber. It adds no feature outside this contract.
+
+================================================================================
+3. PHASES — DO THEM IN ORDER. SEAL EACH. THEN STOP UNTIL THE NEXT PHASE IS ALLOWED BY THE SEAL YOU JUST WROTE.
+================================================================================
+
+Seal format, file ./execution/phase-N-seal.txt
+PHASE: N
+RESULT: PASS | BLOCKED | FAIL
+FILES:
+COMMANDS:
+PROOF:
+NEXT: N+1 or STOP
+
+PHASE 1 — ROOT TRUTH
+Create LICENSE, README.md, test-home.txt, .gitignore, .env.example, package.json, tsconfig.json, next.config.mjs.
+README must repeat, in full and without softening: license freedom of the holder and successors, product boundary, env names, phase map, non-goals, and the honest blocked lines.
+test-home.txt states that the visible home is /test-home and that a missing seal means the phase is not done.
+Acceptance: LICENSE contains the owner line and the sale, assignment, gift, charge, and successor sentence; README Author contains the 70-word passage and version 1.0.0.
+
+PHASE 2 — FRAME
+Build app/layout.tsx, app/globals.css, app/page.tsx, public/icon.svg, app/manifest.ts.
+Gate only. Persian rtl. Meridian Seal implemented in CSS, not in an image.
+Manifest name Ahmad & Amin Technology 2026, short name A&A 2026, display standalone, background and theme #07080c.
+Acceptance: next build passes; gate shows the three brand lines; no second theme exists.
+
+PHASE 3 — WHITELIST SESSION
+Files: lib/session.ts, app/api/auth/login/route.ts, app/api/auth/logout/route.ts, app/api/auth/session/route.ts.
+HMAC-SHA256 cookie aa_session, httpOnly, SameSite=Lax, Secure in production, max age 18 hours.
+Users only from env. If DEMO_MODE is not exactly true, empty password rejects.
+Production guard in middleware.ts: if NODE_ENV=production and (DEMO_MODE=true or secret length < 32), return 503 on every page.
+Acceptance: wrong password returns 401; missing cookie returns 401 on /api/auth/session; cookie is not readable from client script.
+
+PHASE 4 — DATA SEAL
+File supabase/schema.sql only, plus a server reader stub lib/thread.ts.
+Tables: profiles, messages.
+profiles.handle in (amin, ahmad). messages.sender in (amin, ahmad). body length 1 to 4000.
+RLS on. Authenticated select for both. Insert only when sender equals the caller's handle.
+Realtime publication for messages.
+Do not apply SQL from this worker. Seal BLOCKED on live database until a human confirms the script was run.
+Acceptance: SQL file matches these rules; no service-role key in client code.
+
+PHASE 5 — THREAD
+Route app/chamber/page.tsx and app/api/messages/route.ts.
+If Supabase env is empty, thread state stays in memory for the open session and the UI must show the exact line: sync is offline.
+If env exists, send through the server route, subscribe on the client with the anon key, and fall back to GET polling every 3000 ms when the channel status is not joined.
+Bubbles identify Amin or Ahmad and show fa-IR time.
+Acceptance: local mode never claims the brother received the message; polling function exists and is covered by a unit-level pure test for the 3000 ms switch.
+
+PHASE 6 — MODEL ROOM
+File app/api/chat/route.ts. Isolated tab in chamber. No shared history with the brother thread.
+Server reads OPENAI_API_KEY. Client sends model flag and at most 8 messages.
+Map: gpt-4o-mini max_tokens 900; gpt-4o max_tokens 1200. Unknown flag becomes mini.
+Temperature 0.4. System line names the signed-in person and demands the user's language.
+Rate limit 30 per hour per handle, in-memory map acceptable for v1, reject with 429.
+If key missing, return offline:true and the exact Persian line that the server path is ready and the key is absent. Do not imitate a model answer.
+Acceptance: unauthenticated POST is 401; ninth history item is dropped; key never appears in the client bundle.
+
+PHASE 7 — INSTALL, RESILIENCE, TEST HOME
+public/sw.js caches GET navigations with network-first, cache name aa-tech-2026-v1.
+Register from chamber only.
+Offline send becomes a local queue labeled unsent. No offline model cache.
+app/api/health/route.ts returns session boolean, supabase configured boolean, model configured boolean. No secret values.
+app/test-home/page.tsx reads those booleans and the seal files it can see, and titles itself Test Home.
+Acceptance: manifest linked; health returns booleans only; service worker does not cache POST; /test-home renders.
+
+PHASE 8 — RELEASE SEAL
+Run the production guard check, next build, and a read-only review against this contract.
+Write ./execution/release-seal.txt
+RESULT PASS only if phases 1, 2, 3, 6, 7 are PASS and 4 and 5 are PASS or explicitly BLOCKED on missing human secrets.
+List non-goals kept out.
+Stop. Do not open a new phase. Do not deploy unless a human adds a later contract.
+
+================================================================================
+4. ACCEPTANCE LINES THE WORKER MUST BE ABLE TO POINT AT
+================================================================================
+
+- Two accounts, no third path.
+- Model key only on the server.
+- Context window sliced to 8 before the upstream call.
+- Iran degradation is polling, not a dead spinner.
+- README and root files state the same truth as this contract, including what is not live.
+- Holder and successors are unrestricted to sell, assign, license, gift, charge, or develop.
+- Test Home exists as ./test-home.txt and /test-home.
+- DIRECTIVE.txt byte-identical to the file that was given.
+
+END OF CONTRACT
+================================================================================
