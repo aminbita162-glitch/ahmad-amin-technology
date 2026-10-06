@@ -1,0 +1,44 @@
+PHASE: 4
+RESULT: BLOCKED
+FILES: supabase/schema.sql, lib/thread.ts
+COMMANDS: npm run lint, npm run typecheck, npm run build
+PROOF:
+  npm run lint — No ESLint warnings or errors (exit 0).
+  npm run typecheck — tsc --noEmit clean (exit 0).
+  npm run build — Next.js 15.5.27 compiled successfully, 8/8 static pages
+    generated, routes: / (gate), /_not-found, /api/auth/login (dynamic),
+    /api/auth/logout (dynamic), /api/auth/session (dynamic),
+    /manifest.webmanifest (exit 0), Middleware 34 kB.
+
+  supabase/schema.sql — two tables only:
+    profiles(handle text primary key, check handle in ('amin','ahmad'),
+      name text not null default '', created_at timestamptz default now()).
+    messages(id bigint generated identity primary key,
+      sender text check sender in ('amin','ahmad'),
+      body text check char_length(body) between 1 and 4000,
+      created_at timestamptz default now()).
+    RLS enabled on both tables. Default table access revoked from anon and
+      authenticated roles so RLS is the only gate.
+    select policy for authenticated on profiles and messages (using true).
+    insert policy on messages: with check sender in ('amin','ahmad') and
+      sender equals the caller's handle resolved from the JWT
+      (auth.jwt() -> user_metadata -> handle matched against profiles.handle).
+    Realtime: messages added to the supabase_realtime publication
+      (idempotent — guarded by pg_publication_tables check).
+
+  The SQL is NOT applied by the worker. BLOCKED on the live database
+    until a human runs the script against the Supabase project.
+    NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are empty
+    in the current environment, so the thread stays offline.
+
+  lib/thread.ts — server reader stub. createThreadClient() builds a
+    Supabase client from NEXT_PUBLIC_SUPABASE_URL and
+    NEXT_PUBLIC_SUPABASE_ANON_KEY only. If either is empty, returns null
+    (isSupabaseConfigured() false). readMessages() queries the messages
+    table ordered by created_at. No service-role key referenced anywhere
+    in client code (grep for service_role / SERVICE_ROLE / SUPABASE_SERVICE
+    in lib/thread.ts and supabase/schema.sql — none found).
+
+  No new dependencies added. No secrets in code. No Persian in project
+    files.
+NEXT: STOP
