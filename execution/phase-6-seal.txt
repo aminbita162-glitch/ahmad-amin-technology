@@ -1,0 +1,75 @@
+PHASE: 6
+RESULT: BLOCKED
+FILES: app/api/chat/route.ts, app/chamber/page.tsx, app/globals.css, supabase/schema.sql, .env.example
+COMMANDS: npm run lint, npm run typecheck, npm run build
+PROOF:
+  npm run lint — No ESLint warnings or errors (exit 0).
+  npm run typecheck — tsc --noEmit clean (exit 0).
+  npm run build — Next.js 15.5.27 compiled successfully, 11/11 static
+    pages generated. Routes: / (gate), /chamber (static, 66.7 kB),
+    /api/chat (dynamic), /api/messages (dynamic), /api/auth/login,
+    /api/auth/logout, /api/auth/session, /manifest.webmanifest
+    (exit 0). Middleware 34 kB.
+
+  supabase/schema.sql — FIXED FOR REAL (confirmed in working tree and
+    committed in 0fb2036):
+    - Caller handle resolved as auth.jwt() -> 'user_metadata' ->> 'handle'
+      (the correct JSON path: -> for object key, ->> for text extraction).
+      The old ->>'user_metadata'->>'handle' returned null because ->>
+      on a JSON object returns null, not the nested value.
+    - grant select on public.profiles to authenticated (after RLS).
+    - grant select, insert on public.messages to authenticated (after RLS).
+    RLS is the row gate; the grants let the authenticated role execute
+    the policies at all. The SQL is still NOT applied by the worker —
+    BLOCKED on the live database until a human runs the script.
+
+  app/api/chat/route.ts — Model Room server route (new file).
+    - Reads OPENAI_API_KEY from process.env (server-only, no
+      NEXT_PUBLIC_ prefix). The key never enters the client bundle.
+    - Client sends a model flag and at most 8 messages. The incoming
+      messages array is sliced to MAX_MESSAGES (8) before the upstream
+      call — the ninth history item is dropped.
+    - Model map: gpt-4o-mini -> max_tokens 900; gpt-4o -> max_tokens 1200.
+      Unknown flag becomes gpt-4o-mini (resolveModel returns
+      flag === "gpt-4o" ? "gpt-4o" : "gpt-4o-mini").
+    - Temperature 0.4.
+    - System line names the signed-in person ("You are speaking with
+      {name}.") and demands the user's language.
+    - Rate limit 30 per hour per handle, in-memory Map (acceptable for
+      v1). 31st request within the rolling hour window returns 429.
+    - Unauthenticated POST returns 401 (session cookie verified).
+    - If OPENAI_API_KEY is empty: returns { offline: true, reply: null,
+      model, message: Persian line } and does NOT imitate a model answer.
+
+  app/chamber/page.tsx — Model tab (isolated from the thread).
+    - Tab navigation: "Thread" and "Model". The model tab is an isolated
+      room — no shared history with the brother thread. The model
+      conversation (modelHistory) is separate from the bubbles state.
+    - Client sends a model flag (gpt-4o-mini or gpt-4o) and the message
+      list sliced to at most 8 before the call.
+    - When the server returns offline:true, the client shows the Persian
+      line "مسیر سرور آماده است، اما کلید مدل موجود نیست." and does
+      NOT add a fake assistant reply.
+    - 429 shows a rate-limit error; 401 shows an unauthorized error.
+    - Bubble names are "Amin" and "Ahmad" (English only) for user turns;
+      assistant turns are labeled "Assistant".
+    - The OPENAI_API_KEY is never referenced in the client file. The
+      client only sends a model flag and messages to /api/chat.
+
+  app/globals.css — Model Room styles added (Meridian Seal system only:
+    ink/paper/mute, amin/ahmad signals, asymmetric clip-path, frosted
+    panel). No new fonts, no Tailwind, no purple, no neon grid.
+
+  .env.example — OPENAI_API_KEY= (name only, no value) and
+    RATE_LIMIT_PER_HOUR=30. No NEXT_PUBLIC_OPENAI variable exists.
+
+  No new dependencies added. openai@^4.0.0 was already in package.json
+    and installed (4.104.0). No secrets in code. No Persian in non-UI
+    project files (the Persian offline line in the route is a UI string
+    returned to the client, which is the UI layer — correct per the
+    language rule).
+
+  The live model path is BLOCKED because OPENAI_API_KEY is empty in the
+    current environment. The code path is built and compiles, but a
+    human must provide the OpenAI key before the model room can go live.
+NEXT: STOP

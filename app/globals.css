@@ -309,3 +309,123 @@ body {
 .chamber__send:not(:disabled):hover {
   background: rgba(239, 231, 220, 0.08);
 }
+
+/* ====================================================================== */
+/* Model Room — Phase 6                                                    */
+/* ====================================================================== */
+
+.chamber__tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.chamber__tab {
+  font-family: var(--font-en);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.4rem 1rem;
+  background: transparent;
+  color: var(--mute);
+  border: 1px solid transparent;
+  border-radius: 0;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.chamber__tab--active {
+  color: var(--paper);
+  border-color: rgba(154, 145, 134, 0.4);
+}
+
+.chamber__model-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.chamber__model-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.chamber__model-label-text {
+  font-family: var(--font-en);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+
+.chamber__model-select {
+  font-family: var(--font-en);
+  font-size: 0.8rem;
+  padding: 0.3rem 0.5rem;
+  background: rgba(239, 231, 220, 0.04);
+  color: var(--paper);
+  border: 1px solid rgba(154, 145, 134, 0.3);
+  border-radius: 0;
+  outline: none;
+}
+
+.chamber__model {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-height: 240px;
+  max-height: 56vh;
+  overflow-y: auto;
+  padding: 0.5rem 0.25rem;
+}
+
+.model-turn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.6rem 0.9rem;
+  max-width: 78%;
+  word-break: break-word;
+}
+
+.model-turn--user {
+  align-self: flex-end;
+  border-inline-end: 2px solid var(--amin);
+  background: rgba(159, 215, 255, 0.06);
+}
+
+.model-turn--assistant {
+  align-self: flex-start;
+  border-inline-start: 2px solid var(--ahmad);
+  background: rgba(196, 165, 116, 0.06);
+}
+
+.model-turn__name {
+  font-family: var(--font-en);
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--mute);
+}
+
+.model-turn--user .model-turn__name {
+  color: var(--amin);
+}
+
+.model-turn--assistant .model-turn__name {
+  color: var(--ahmad);
+}
+
+.model-turn__body {
+  font-family: var(--font-fa);
+  font-size: 0.95rem;
+  color: var(--paper);
+  line-height: 1.6;
+}
+
+.chamber__model-error {
+  font-family: var(--font-fa);
+  font-size: 0.8rem;
+  color: var(--fault);
+  padding: 0.4rem 0.9rem;
+}
