@@ -58,3 +58,44 @@ export async function readMessages(
   if (error) return [];
   return (data ?? []) as unknown as MessageRow[];
 }
+
+/**
+ * Insert a message server-side. The body length is enforced here (1-4000)
+ * so the route never sends a oversized payload to Postgres even if the
+ * client bypasses the schema check. Returns the new row or null on error.
+ */
+export async function writeMessage(
+  client: SupabaseClient,
+  sender: Handle,
+  body: string,
+): Promise<MessageRow | null> {
+  if (body.length < 1 || body.length > 4000) return null;
+  if (sender !== "amin" && sender !== "ahmad") return null;
+  const { data, error } = await client
+    .from("messages")
+    .insert({ sender, body })
+    .select("id, sender, body, created_at")
+    .single();
+  if (error) return null;
+  return data as unknown as MessageRow;
+}
+
+/**
+ * Polling fallback interval — 3000 ms.
+ *
+ * Iran path: the WebSocket may die. When the realtime channel is not
+ * joined, the client falls back to GET polling at this interval.
+ */
+export const POLL_INTERVAL_MS = 3000;
+
+/**
+ * Pure switch: returns true when the realtime channel is NOT joined,
+ * so the polling fallback should run. This is the 3000 ms switch.
+ *
+ * Channel statuses Supabase emits: "connecting", "joined", "closing",
+ * "closed", "timed out", "" (initial). Only "joined" means the socket
+ * is live — every other state must poll.
+ */
+export function shouldPoll(channelStatus: string): boolean {
+  return channelStatus !== "joined";
+}

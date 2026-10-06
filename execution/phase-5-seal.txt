@@ -1,0 +1,71 @@
+PHASE: 5
+RESULT: BLOCKED
+FILES: app/chamber/page.tsx, app/api/messages/route.ts, lib/thread.ts, lib/thread.test.ts, supabase/schema.sql, app/globals.css, tsconfig.json
+COMMANDS: npm run lint, npm run typecheck, npm run build, node --test lib/thread.test.ts
+PROOF:
+  npm run lint — No ESLint warnings or errors (exit 0).
+  npm run typecheck — tsc --noEmit clean (exit 0).
+  npm run build — Next.js 15.5.27 compiled successfully, 10/10 static
+    pages generated. Routes: / (gate), /chamber (static, 66 kB),
+    /api/messages (dynamic), /api/auth/login, /api/auth/logout,
+    /api/auth/session, /manifest.webmanifest (exit 0). Middleware 34 kB.
+  node --test lib/thread.test.ts — 5 tests, 5 pass, 0 fail (exit 0).
+    Covers POLL_INTERVAL_MS === 3000 and shouldPoll() truth table.
+
+  supabase/schema.sql — FIXED in Phase 5:
+    - caller handle resolved as auth.jwt() -> 'user_metadata' ->> 'handle'
+      (was ->>'user_metadata'->>'handle', which returns null).
+    - grant select on public.profiles to authenticated (after RLS).
+    - grant select, insert on public.messages to authenticated (after RLS).
+    RLS is the row gate; the grants let the authenticated role execute
+    the policies at all. The SQL is still NOT applied by the worker.
+
+  lib/thread.ts — added:
+    - POLL_INTERVAL_MS = 3000 (the polling fallback interval).
+    - shouldPoll(channelStatus): boolean — pure switch, returns true when
+      the realtime channel status is not "joined" (connecting, closed,
+      closing, timed out, or empty all poll). Only "joined" stops polling.
+    - writeMessage(client, sender, body) — server-side insert with the
+      same 1-4000 length guard as the schema check.
+
+  app/api/messages/route.ts — GET and POST, both behind the session
+    cookie (401 without it). When Supabase env is empty:
+    - GET returns { offline: true, messages: [] } — the client holds
+      the thread in memory.
+    - POST returns { offline: true, sent: false, message: null } — the
+      optimistic echo stays on the sender's screen but the response
+      never claims the brother received the message.
+    When env exists, the route reads/writes through the Supabase client
+    (anon key only, no service-role key).
+
+  app/chamber/page.tsx — client thread.
+    - Reads NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.
+    - If both are empty, syncOffline is true and the exact line
+      "sync is offline" is rendered. Bubbles stay in memory.
+    - If env exists, the page subscribes to the messages channel with
+      the anon key, inserts on INSERT events, and starts a polling
+      interval (POLL_INTERVAL_MS) that calls GET /api/messages only
+      when shouldPoll(channelStatus) is true. When the channel emits
+      "joined", polling stops; any other status resumes polling.
+    - POST sends through the server route (optimistic local echo, no
+      claim of brother receipt on offline).
+    - Bubbles identify Amin (امین, glacial) or Ahmad (احمد, copper) and
+      show fa-IR time via toLocaleTimeString("fa-IR").
+
+  app/globals.css — chamber styles added, Meridian Seal system only
+    (ink/paper/mute, amin/ahmad signals, asymmetric clip-path, frosted
+    panel). No new fonts, no Tailwind, no purple, no neon grid.
+
+  tsconfig.json — excluded **/*.test.ts so the .ts extension imports
+    required by node --test do not break tsc --noEmit.
+
+  No new dependencies added. No secrets in code. No Persian in non-UI
+    project files (UI display strings in chamber/globals are Persian,
+    which is the UI layer — correct per the language rule).
+
+  The live sync path is BLOCKED because NEXT_PUBLIC_SUPABASE_URL and
+    NEXT_PUBLIC_SUPABASE_ANON_KEY are empty in the current environment.
+    The code path is built and compiles, but a human must provide the
+    Supabase project URL/anon key and run supabase/schema.sql against
+    it before the thread can go live.
+NEXT: STOP

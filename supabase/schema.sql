@@ -68,10 +68,16 @@ create policy "messages_insert_own_handle"
       select p.handle
       from public.profiles p
       where p.handle = (
-        auth.jwt() ->> 'user_metadata' ->> 'handle'
+        auth.jwt() -> 'user_metadata' ->> 'handle'
       )
     )
   );
+
+-- Grant table-level privileges to the authenticated role AFTER the
+-- policies are in place. RLS filters rows, but the role still needs
+-- SELECT / INSERT on the table for the policies to execute at all.
+grant select on public.profiles to authenticated;
+grant select, insert on public.messages to authenticated;
 
 -- ============================================================================
 -- Realtime
