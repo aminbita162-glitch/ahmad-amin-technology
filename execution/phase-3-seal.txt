@@ -1,0 +1,24 @@
+PHASE: 3
+RESULT: PASS
+FILES: lib/session.ts, app/api/auth/login/route.ts, app/api/auth/logout/route.ts, app/api/auth/session/route.ts, middleware.ts
+COMMANDS: npm run lint, npm run typecheck, npm run build
+PROOF:
+  npm run lint — No ESLint warnings or errors (exit 0)
+  npm run typecheck — tsc --noEmit clean (exit 0)
+  npm run build — Next.js 15.5.27 compiled successfully, 8/8 static pages generated,
+    routes: / (gate), /_not-found, /api/auth/login (dynamic), /api/auth/logout (dynamic),
+    /api/auth/session (dynamic), /manifest.webmanifest (exit 0), Middleware 34 kB.
+  Session cookie: aa_session, HMAC-SHA256 signed token (createHmac sha256 over JSON body),
+    httpOnly true, SameSite "lax", Secure in production (NODE_ENV=production), maxAge 18 hours (64800 s).
+  Users only from env: getWhitelistUsers reads AMIN_EMAIL/AMIN_PASSWORD/AMIN_NAME and
+    AHMAD_EMAIL/AHMAD_PASSWORD/AHMAD_NAME. No third account, no public signup.
+  Wrong password: attemptLogin returns ok:false when password does not match (timingSafeEqual);
+    login route returns 401. Empty password rejected unless DEMO_MODE=true.
+  Missing cookie: /api/auth/session GET returns 401 when aa_session is absent or
+    signature fails verification (verifySessionToken returns null).
+  Cookie not readable from client script: httpOnly:true on every Set-Cookie.
+  Production guard (middleware.ts): when NODE_ENV=production AND (DEMO_MODE=true OR
+    SESSION_SECRET.length < 32), every matched route returns 503. Matcher excludes
+    _next/static, _next/image, favicon.ico.
+  No new dependencies added. No secrets in code. No Persian in project files.
+NEXT: STOP
