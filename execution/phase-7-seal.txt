@@ -1,0 +1,89 @@
+PHASE: 7
+RESULT: PASS
+FILES: public/sw.js, app/api/health/route.ts, app/test-home/page.tsx, app/chamber/page.tsx, app/api/chat/route.ts, app/globals.css
+COMMANDS: npm run lint, npm run typecheck, npm run build
+PROOF:
+  npm run lint — No ESLint warnings or errors (exit 0).
+  npm run typecheck — tsc --noEmit clean (exit 0).
+  npm run build — Next.js 15.5.27 compiled successfully, 13/13 static
+    pages generated. Routes: / (gate, static), /chamber (static, 66.9 kB),
+    /test-home (dynamic, server-rendered on demand — reads seals from the
+    filesystem at request time), /api/health (dynamic), /api/chat (dynamic),
+    /api/messages (dynamic), /api/auth/* (dynamic), /manifest.webmanifest
+    (exit 0). Middleware 34 kB.
+
+  public/sw.js — Service Worker (new file).
+    - Cache name: aa-tech-2026-v1.
+    - Network-first caching for GET navigations (request.mode === "navigate").
+      On a successful fetch the response is cloned into the cache; on network
+      failure the last cached navigation is served, or a 503 fallback.
+    - POST and all non-GET methods are never cached — the handler returns
+      early and the request goes straight to the network.
+    - Model replies (/api/chat) are never cached — the handler returns early
+      for that pathname so /api/chat responses are always fresh from the server.
+    - Only same-origin requests are handled.
+    - On activate, old caches (any key !== aa-tech-2026-v1) are deleted and
+      clients are claimed.
+
+  app/api/health/route.ts — Health route (new file).
+    - GET returns three booleans only — no secret values:
+      session (true if aa_session cookie verifies), supabase (true if
+      NEXT_PUBLIC_SUPABASE_URL and anon key are set), model (true if
+      OPENAI_API_KEY is set).
+    - The route does not expose any env value, only the boolean.
+
+  app/test-home/page.tsx — Test Home (new file).
+    - Server component, titled "Test Home" via metadata export.
+    - Reads phase seals from execution/phase-N-seal.txt (phases 1-8) at
+      request time using fs/promises. Missing seal files show "MISSING".
+    - Reads health booleans (session, supabase, model) via the same logic
+      as the health route (cookie verification + isSupabaseConfigured +
+      OPENAI_API_KEY presence). The page is a sealed checklist — it does
+      not call the health route, it reads the booleans directly on the server.
+    - Shows sync (Supabase) and model (OpenAI) as "live" or "blocked".
+    - Lists each phase seal with its result (PASS / BLOCKED / MISSING).
+    - Links back to /chamber. Reachable from the chamber via the Test Home link.
+    - Styled with the Meridian Seal visual system (ink/paper/mute, amin/ahmad
+      signals, asymmetric clip-path, frosted panel). No new fonts.
+
+  app/chamber/page.tsx — Service Worker registration + unsent queue (edited).
+    - Registers /sw.js via navigator.serviceWorker.register from the chamber
+      only (a useEffect that checks "serviceWorker" in navigator). Registration
+      failures are caught and silently ignored — the app still works.
+    - Offline send becomes a local queue labeled "unsent". When syncOffline
+      is true or the POST fails, the message is added to the unsent state
+      array. The unsent queue renders below the compose form with a count and
+      each queued message's handle and body.
+    - The Persian missing-key line in the model empty state is replaced with
+      the English line: "The server path is ready and the model key is absent."
+    - A "Test Home" link is added to the thread tab, linking to /test-home.
+
+  app/api/chat/route.ts — Offline line replacement (edited).
+    - The OFFLINE_MESSAGE constant is replaced from the Persian line to the
+      English line: "The server path is ready and the model key is absent."
+      This is the line returned to the client when OPENAI_API_KEY is empty.
+
+  app/globals.css — Test Home + unsent + chamber link styles (edited).
+    - .test-home panel (Meridian Seal: asymmetric clip-path, frosted
+      backdrop-filter, ink/paper/mute palette).
+    - .test-home__booleans, .test-home__status, .test-home__seals with
+      .test-home__live (amin signal) and .test-home__blocked (fault color).
+    - .chamber__unsent queue (dashed fault border, fault-colored label).
+    - .chamber__link and .test-home__link (mute, hover to paper).
+    - No new fonts, no Tailwind, no purple, no neon grid.
+
+  No new dependencies added. No secrets in code. No Persian in non-UI
+    project files (the chamber page's remaining Persian chars are UI strings
+    — titles, button labels, placeholders — which is the UI layer, correct
+    per the language rule). The offline line that was Persian is now English
+    in both app/api/chat/route.ts and app/chamber/page.tsx.
+
+  Acceptance:
+    - Manifest linked: /manifest.webmanifest route exists (build output).
+    - Health returns booleans only: session, supabase, model — no values.
+    - Service worker does not cache POST: the fetch handler returns early
+      for any non-GET method. Model replies (/api/chat) are also never cached.
+    - /test-home renders: present in the build output (dynamic route).
+    - Service worker registered from chamber only: the registration
+      useEffect lives in app/chamber/page.tsx.
+NEXT: STOP

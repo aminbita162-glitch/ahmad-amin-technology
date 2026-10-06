@@ -34,9 +34,9 @@ const MAX_TOKENS: Record<ModelFlag, number> = {
   "gpt-4o": 1200,
 };
 
-// Persian offline line — the server path is ready but the key is absent.
+// Offline line — the server path is ready but the key is absent.
 // This is a UI string, not a project artifact label.
-const OFFLINE_MESSAGE = "مسیر سرور آماده است، اما کلید مدل موجود نیست.";
+const OFFLINE_MESSAGE = "The server path is ready and the model key is absent.";
 
 // In-memory rate limit: handle -> array of request timestamps.
 // Acceptable for v1 per the directive.

@@ -42,10 +42,18 @@ const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
 const MAX_MODEL_MESSAGES = 8;
 
+interface UnsentEntry {
+  id: number;
+  sender: "amin" | "ahmad";
+  body: string;
+  created_at: string;
+}
+
 export default function ChamberPage() {
   const [bubbles, setBubbles] = useState<Bubble[]>([]);
   const [draft, setDraft] = useState("");
   const [syncOffline, setSyncOffline] = useState(true);
+  const [unsent, setUnsent] = useState<UnsentEntry[]>([]);
   const [sessionHandle, setSessionHandle] = useState<"amin" | "ahmad" | null>(null);
   const channelRef = useRef<RealtimeChannel | null>(null);
   const clientRef = useRef<SupabaseClient | null>(null);
@@ -150,6 +158,15 @@ export default function ChamberPage() {
     };
   }, [fetchSession, initRealtime, pollMessages, stopPolling]);
 
+  // Phase 7 — Register the service worker from the chamber only.
+  useEffect(() => {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js").catch(() => {
+        // Registration failed — the app still works without offline caching.
+      });
+    }
+  }, []);
+
   const send = useCallback(async () => {
     const text = draft.trim();
     if (!text || !sessionHandle) return;
@@ -163,15 +180,27 @@ export default function ChamberPage() {
     setBubbles((prev) => [...prev, optimistic]);
     setDraft("");
     try {
-      await fetch("/api/messages", {
+      const res = await fetch("/api/messages", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ body: text }),
       });
-      if (!syncOffline) pollMessages();
+      if (res.ok && !syncOffline) {
+        pollMessages();
+      } else if (syncOffline) {
+        // Offline send becomes a local queue labeled unsent.
+        setUnsent((prev) => [
+          ...prev,
+          { id: optimistic.id, sender: sessionHandle, body: text, created_at: optimistic.created_at },
+        ]);
+      }
     } catch {
-      // offline — the optimistic echo stays but we never claim the
-      // brother received the message.
+      // Offline — the optimistic echo stays but we never claim the
+      // brother received the message. Queue as unsent.
+      setUnsent((prev) => [
+        ...prev,
+        { id: optimistic.id, sender: sessionHandle, body: text, created_at: optimistic.created_at },
+      ]);
     }
   }, [draft, sessionHandle, syncOffline, pollMessages]);
 
@@ -323,6 +352,20 @@ export default function ChamberPage() {
                 ارسال
               </button>
             </form>
+            {unsent.length > 0 && (
+              <div className="chamber__unsent" aria-label="unsent queue">
+                <p className="chamber__unsent-label">unsent ({unsent.length})</p>
+                <ul className="chamber__unsent-list">
+                  {unsent.map((u) => (
+                    <li key={u.id} className="chamber__unsent-item">
+                      <span className="chamber__unsent-handle">{handleLabel(u.sender)}</span>
+                      <span className="chamber__unsent-body">{u.body}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            <a href="/test-home" className="chamber__link">Test Home</a>
           </>
         )}
 
@@ -355,7 +398,7 @@ export default function ChamberPage() {
               {modelHistory.length === 0 && (
                 <p className="chamber__empty">
                   {modelOffline
-                    ? "مسیر سرور آماده است، اما کلید مدل موجود نیست."
+                    ? "The server path is ready and the model key is absent."
                     : "Ask the model"}
                 </p>
               )}
