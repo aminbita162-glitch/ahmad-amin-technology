@@ -694,6 +694,650 @@ body {
   transition: border-color 0.15s ease, color 0.15s ease;
 }
 
+/* ====================================================================== */
+/* Desk — Options R2 (local, browser-only)                               */
+/* ====================================================================== */
+
+.desk {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.desk__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.desk__search {
+  flex: 1;
+  min-width: 160px;
+  font-family: var(--font-en);
+  font-size: 0.85rem;
+  padding: 0.5rem 0.8rem;
+  background: rgba(239, 231, 220, 0.04);
+  color: var(--paper);
+  border: 1px solid rgba(154, 145, 134, 0.3);
+  border-radius: 0;
+  outline: none;
+}
+
+.desk__search:focus {
+  border-color: var(--mute);
+}
+
+.desk__model-switch {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.desk__model-label {
+  font-family: var(--font-en);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+
+.desk__model-select {
+  font-family: var(--font-en);
+  font-size: 0.8rem;
+  padding: 0.3rem 0.5rem;
+  background: rgba(239, 231, 220, 0.04);
+  color: var(--paper);
+  border: 1px solid rgba(154, 145, 134, 0.3);
+  border-radius: 0;
+  outline: none;
+}
+
+.desk__status {
+  font-family: var(--font-en);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: var(--mute);
+  margin: 0;
+}
+
+.desk__logout {
+  font-family: var(--font-en);
+  font-size: 0.8rem;
+  padding: 0.4rem 1rem;
+  background: transparent;
+  color: var(--paper);
+  border: 1px solid var(--paper);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.desk__logout:hover {
+  background: rgba(239, 231, 220, 0.08);
+}
+
+.desk__tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.desk__tags-label {
+  font-family: var(--font-en);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+
+.desk__tag-btn {
+  font-family: var(--font-en);
+  font-size: 0.72rem;
+  padding: 0.2rem 0.6rem;
+  background: transparent;
+  color: var(--mute);
+  border: 1px solid rgba(154, 145, 134, 0.3);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.desk__tag-btn--active {
+  color: var(--paper);
+  border-color: var(--paper);
+}
+
+.desk__tag-clear {
+  font-family: var(--font-en);
+  font-size: 0.72rem;
+  padding: 0.2rem 0.5rem;
+  background: transparent;
+  color: var(--fault);
+  border: none;
+  cursor: pointer;
+}
+
+.desk__section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.desk__section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.desk__heading {
+  font-family: var(--font-en);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+
+.desk__btn {
+  font-family: var(--font-en);
+  font-size: 0.75rem;
+  padding: 0.3rem 0.8rem;
+  background: transparent;
+  color: var(--paper);
+  border: 1px solid rgba(154, 145, 134, 0.4);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.desk__btn:hover {
+  background: rgba(239, 231, 220, 0.06);
+}
+
+.desk__btn--stop {
+  border-color: var(--fault);
+  color: var(--fault);
+}
+
+.desk__btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.desk__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.desk__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid rgba(154, 145, 134, 0.2);
+}
+
+.desk__item--pinned {
+  border-color: var(--ahmad);
+}
+
+.desk__item--selected {
+  border-color: var(--amin);
+}
+
+.desk__item--done {
+  opacity: 0.6;
+}
+
+.desk__item-name {
+  font-family: var(--font-en);
+  font-size: 0.85rem;
+  color: var(--paper);
+  flex: 1;
+  min-width: 120px;
+  text-align: left;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.desk__item-kind {
+  font-size: 0.7rem;
+  color: var(--mute);
+  text-transform: uppercase;
+}
+
+.desk__item-tags {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.desk__tag-badge {
+  font-family: var(--font-en);
+  font-size: 0.65rem;
+  padding: 0.1rem 0.4rem;
+  background: rgba(154, 145, 134, 0.15);
+  color: var(--mute);
+}
+
+.desk__item-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.desk__item-actions button {
+  font-family: var(--font-en);
+  font-size: 0.7rem;
+  padding: 0.15rem 0.5rem;
+  background: transparent;
+  color: var(--mute);
+  border: 1px solid rgba(154, 145, 134, 0.25);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.desk__item-actions button:hover {
+  color: var(--paper);
+  border-color: var(--paper);
+}
+
+.desk__tag-toggle {
+  font-family: var(--font-en);
+  font-size: 0.65rem;
+  padding: 0.1rem 0.4rem;
+  background: transparent;
+  color: var(--mute);
+  border: 1px solid rgba(154, 145, 134, 0.2);
+  cursor: pointer;
+}
+
+.desk__tag-toggle--on {
+  color: var(--amin);
+  border-color: var(--amin);
+}
+
+.desk__empty {
+  font-family: var(--font-en);
+  font-size: 0.8rem;
+  color: var(--mute);
+  padding: 0.5rem 0;
+}
+
+.desk__file-input {
+  display: none;
+}
+
+.desk__meeting-form {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.desk__meeting-form input {
+  font-family: var(--font-en);
+  font-size: 0.8rem;
+  padding: 0.3rem 0.6rem;
+  background: rgba(239, 231, 220, 0.04);
+  color: var(--paper);
+  border: 1px solid rgba(154, 145, 134, 0.3);
+  border-radius: 0;
+  outline: none;
+}
+
+.desk__meeting-form input:focus {
+  border-color: var(--mute);
+}
+
+.desk__meeting-form input[type="text"] {
+  flex: 1;
+  min-width: 140px;
+}
+
+.desk__meeting-check {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+}
+
+.desk__meeting-date {
+  font-family: var(--font-en);
+  font-size: 0.75rem;
+  color: var(--mute);
+}
+
+.desk__badge {
+  font-family: var(--font-en);
+  font-size: 0.6rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 0;
+}
+
+.desk__badge--due {
+  color: var(--fault);
+  border: 1px solid var(--fault);
+}
+
+.desk__badge--overdue {
+  color: var(--fault);
+  background: rgba(196, 92, 74, 0.15);
+  border: 1px solid var(--fault);
+}
+
+.desk__badge--soon {
+  color: var(--ahmad);
+  border: 1px solid var(--ahmad);
+}
+
+.desk__badge--done {
+  color: var(--mute);
+  border: 1px solid rgba(154, 145, 134, 0.3);
+}
+
+/* Month calendar (control 21) */
+.desk__calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  margin-top: 0.5rem;
+}
+
+.desk__calendar-dow {
+  font-family: var(--font-en);
+  font-size: 0.6rem;
+  text-align: center;
+  color: var(--mute);
+  padding: 0.2rem 0;
+  text-transform: uppercase;
+}
+
+.desk__calendar-day {
+  min-height: 48px;
+  padding: 0.2rem;
+  border: 1px solid rgba(154, 145, 134, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  overflow: hidden;
+}
+
+.desk__calendar-day--empty {
+  border: 1px solid transparent;
+}
+
+.desk__calendar-daynum {
+  font-family: var(--font-en);
+  font-size: 0.65rem;
+  color: var(--mute);
+}
+
+.desk__calendar-event {
+  font-family: var(--font-en);
+  font-size: 0.55rem;
+  color: var(--amin);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.desk__calendar-event--done {
+  color: var(--mute);
+  text-decoration: line-through;
+}
+
+/* Checklists (control 9) */
+.desk__checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid rgba(154, 145, 134, 0.2);
+}
+
+.desk__checklist-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.desk__checklist-add {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.desk__checklist-add input {
+  flex: 1;
+  font-family: var(--font-en);
+  font-size: 0.8rem;
+  padding: 0.2rem 0.5rem;
+  background: rgba(239, 231, 220, 0.04);
+  color: var(--paper);
+  border: 1px solid rgba(154, 145, 134, 0.3);
+  border-radius: 0;
+  outline: none;
+}
+
+.desk__checklist-add button {
+  font-family: var(--font-en);
+  font-size: 0.75rem;
+  padding: 0.2rem 0.6rem;
+  background: transparent;
+  color: var(--paper);
+  border: 1px solid rgba(154, 145, 134, 0.4);
+  cursor: pointer;
+}
+
+.desk__checklist-items {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.desk__checklist-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+}
+
+.desk__checklist-item label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: 1;
+  cursor: pointer;
+}
+
+.desk__checklist-text--done {
+  text-decoration: line-through;
+  color: var(--mute);
+}
+
+.desk__checklist-actions {
+  display: flex;
+  gap: 0.2rem;
+}
+
+.desk__checklist-actions button {
+  font-family: var(--font-en);
+  font-size: 0.65rem;
+  padding: 0.1rem 0.4rem;
+  background: transparent;
+  color: var(--mute);
+  border: 1px solid rgba(154, 145, 134, 0.2);
+  cursor: pointer;
+}
+
+.desk__checklist-actions button:hover {
+  color: var(--paper);
+}
+
+/* Modals (controls 2, 14, 24, 25) */
+.desk__modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(7, 8, 12, 0.8);
+  padding: 1rem;
+}
+
+.desk__modal-content {
+  width: 100%;
+  max-width: 520px;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: var(--ink);
+  border: 1px solid rgba(154, 145, 134, 0.3);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.desk__modal-title {
+  font-family: var(--font-en);
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--paper);
+}
+
+.desk__modal-input {
+  font-family: var(--font-en);
+  font-size: 0.85rem;
+  padding: 0.4rem 0.6rem;
+  background: rgba(239, 231, 220, 0.04);
+  color: var(--paper);
+  border: 1px solid rgba(154, 145, 134, 0.3);
+  border-radius: 0;
+  outline: none;
+}
+
+.desk__modal-textarea {
+  font-family: var(--font-fa);
+  font-size: 0.9rem;
+  width: 100%;
+  min-height: 200px;
+  padding: 0.6rem;
+  background: rgba(239, 231, 220, 0.04);
+  color: var(--paper);
+  border: 1px solid rgba(154, 145, 134, 0.3);
+  border-radius: 0;
+  outline: none;
+  resize: vertical;
+}
+
+.desk__modal-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.desk__modal-actions button {
+  font-family: var(--font-en);
+  font-size: 0.8rem;
+  padding: 0.4rem 1rem;
+  background: transparent;
+  color: var(--paper);
+  border: 1px solid var(--paper);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.desk__modal-actions button:hover {
+  background: rgba(239, 231, 220, 0.08);
+}
+
+.desk__preview {
+  font-family: monospace;
+  font-size: 0.8rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--paper);
+  background: rgba(239, 231, 220, 0.03);
+  padding: 0.6rem;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.desk__move-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.desk__move-list button {
+  font-family: var(--font-en);
+  font-size: 0.8rem;
+  padding: 0.4rem 0.6rem;
+  background: transparent;
+  color: var(--paper);
+  border: 1px solid rgba(154, 145, 134, 0.3);
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+}
+
+.desk__move-list button:hover {
+  border-color: var(--paper);
+}
+
+.desk__contract-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.desk__form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.desk__form-field span {
+  font-family: var(--font-en);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+
+.desk__form-field input,
+.desk__form-field textarea {
+  font-family: var(--font-fa);
+  font-size: 0.85rem;
+  padding: 0.4rem 0.6rem;
+  background: rgba(239, 231, 220, 0.04);
+  color: var(--paper);
+  border: 1px solid rgba(154, 145, 134, 0.3);
+  border-radius: 0;
+  outline: none;
+}
+
+.desk__form-field textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.desk__form-field input:focus,
+.desk__form-field textarea:focus {
+  border-color: var(--mute);
+}
+
 .test-home__link:hover {
   color: var(--paper);
   border-color: var(--mute);

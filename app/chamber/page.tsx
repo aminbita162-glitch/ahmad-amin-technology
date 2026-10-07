@@ -6,9 +6,10 @@ import {
   POLL_INTERVAL_MS,
   shouldPoll,
 } from "@/lib/thread";
+import Desk from "./desk";
 
 /**
- * Phase 5 + Phase 6 — Thread (chamber) + Model Room.
+ * Phase 5 + Phase 6 + Options R2 — Thread, Model Room, Local Desk.
  *
  * If Supabase env is empty, the thread stays in memory for the open
  * session and the UI shows the exact line: "sync is offline". Local
@@ -18,12 +19,17 @@ import {
  * client with the anon key, and fall back to GET polling every
  * 3000 ms when the channel status is not "joined".
  *
- * Bubbles identify Amin or Ahmad and show fa-IR time.
- *
  * The model tab (Phase 6) is an isolated room — no shared history with
  * the brother thread. The client sends a model flag and at most 8
  * messages to /api/chat. Bubble names are Amin and Ahmad, English only.
+ *
+ * The desk tab (Options R2) is a local-only workspace: folders, files,
+ * meetings, checklists, voice notes — all in the browser. No server, no
+ * new packages. A missing sync path stays labeled "sync is offline".
  */
+
+type Tab = "thread" | "model" | "desk";
+type ModelFlag = "gpt-4o-mini" | "gpt-4o";
 
 interface Bubble {
   id: number;
@@ -61,10 +67,10 @@ export default function ChamberPage() {
   const channelStatusRef = useRef<string>("");
 
   // Phase 6 — Model Room state (isolated from the thread).
-  const [tab, setTab] = useState<"thread" | "model">("thread");
+  const [tab, setTab] = useState<Tab>("desk");
   const [modelDraft, setModelDraft] = useState("");
   const [modelHistory, setModelHistory] = useState<ModelTurn[]>([]);
-  const [modelFlag, setModelFlag] = useState<"gpt-4o-mini" | "gpt-4o">("gpt-4o-mini");
+  const [modelFlag, setModelFlag] = useState<ModelFlag>("gpt-4o-mini");
   const [modelOffline, setModelOffline] = useState(false);
   const [modelLoading, setModelLoading] = useState(false);
   const [modelError, setModelError] = useState<string | null>(null);
@@ -118,7 +124,7 @@ export default function ChamberPage() {
     clientRef.current = client;
     const channel = client.channel("messages");
     channelRef.current = channel;
-    channel.on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, (payload) => {
+    channel.on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, (payload: { new: Bubble }) => {
       const row = payload.new as Bubble;
       if (row && row.sender && row.body) {
         setBubbles((prev) => {
@@ -167,6 +173,16 @@ export default function ChamberPage() {
     }
   }, []);
 
+  // Control 15 — Logout button.
+  const logout = useCallback(async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {
+      // ignore — proceed to redirect anyway
+    }
+    window.location.href = "/";
+  }, []);
+
   const send = useCallback(async () => {
     const text = draft.trim();
     if (!text || !sessionHandle) return;
@@ -211,9 +227,6 @@ export default function ChamberPage() {
     const text = modelDraft.trim();
     if (!text || !sessionHandle || modelLoading) return;
 
-    // Build the message list for this turn. The user's new line is
-    // appended, then the whole list is sliced to at most 8 before the
-    // call — the ninth history item is dropped.
     const userTurn: ModelTurn = {
       id: Date.now(),
       role: "user",
@@ -252,8 +265,6 @@ export default function ChamberPage() {
       const data = await res.json();
 
       if (data.offline === true) {
-        // Key is missing — the server returns offline true and does
-        // NOT imitate a model answer. Show the Persian line.
         setModelOffline(true);
         setModelLoading(false);
         return;
@@ -276,12 +287,9 @@ export default function ChamberPage() {
     }
   }, [modelDraft, sessionHandle, modelLoading, modelFlag, modelHistory]);
 
-  const handleLabel = (sender: "amin" | "ahmad") =>
-    sender === "amin" ? "امین" : "احمد";
-
   const formatTime = (iso: string) => {
     try {
-      return new Date(iso).toLocaleTimeString("fa-IR", {
+      return new Date(iso).toLocaleTimeString("en-GB", {
         hour: "2-digit",
         minute: "2-digit",
       });
@@ -299,6 +307,13 @@ export default function ChamberPage() {
         <nav className="chamber__tabs" aria-label="chamber tabs">
           <button
             type="button"
+            className={`chamber__tab${tab === "desk" ? " chamber__tab--active" : ""}`}
+            onClick={() => setTab("desk")}
+          >
+            Desk
+          </button>
+          <button
+            type="button"
             className={`chamber__tab${tab === "thread" ? " chamber__tab--active" : ""}`}
             onClick={() => setTab("thread")}
           >
@@ -313,17 +328,27 @@ export default function ChamberPage() {
           </button>
         </nav>
 
+        {tab === "desk" && (
+          <Desk
+            modelFlag={modelFlag}
+            setModelFlag={setModelFlag}
+            syncOffline={syncOffline}
+            modelOffline={modelOffline}
+            onLogout={logout}
+          />
+        )}
+
         {tab === "thread" && (
           <>
             <header className="chamber__header">
-              <h1 className="chamber__title">اتاق</h1>
+              <h1 className="chamber__title">Thread</h1>
               <p className="chamber__sync">
                 {syncOffline ? "sync is offline" : "sync is live"}
               </p>
             </header>
             <div className="chamber__thread" aria-label="message thread">
               {bubbles.length === 0 && (
-                <p className="chamber__empty">پیامی نیست</p>
+                <p className="chamber__empty">No messages</p>
               )}
               {bubbles.map((b) => (
                 <div
@@ -331,7 +356,7 @@ export default function ChamberPage() {
                   className={`bubble bubble--${b.sender}`}
                   data-sender={b.sender}
                 >
-                  <span className="bubble__handle">{handleLabel(b.sender)}</span>
+                  <span className="bubble__handle">{b.sender}</span>
                   <span className="bubble__body">{b.body}</span>
                   <span className="bubble__time">{formatTime(b.created_at)}</span>
                 </div>
@@ -344,12 +369,12 @@ export default function ChamberPage() {
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 maxLength={4000}
-                placeholder="پیام بنویس"
+                placeholder="Type a message"
                 disabled={!sessionHandle}
                 aria-label="message input"
               />
               <button type="submit" className="chamber__send" disabled={!sessionHandle || !draft.trim()}>
-                ارسال
+                Send
               </button>
             </form>
             {unsent.length > 0 && (
@@ -358,7 +383,7 @@ export default function ChamberPage() {
                 <ul className="chamber__unsent-list">
                   {unsent.map((u) => (
                     <li key={u.id} className="chamber__unsent-item">
-                      <span className="chamber__unsent-handle">{handleLabel(u.sender)}</span>
+                      <span className="chamber__unsent-handle">{u.sender}</span>
                       <span className="chamber__unsent-body">{u.body}</span>
                     </li>
                   ))}
