@@ -1,0 +1,48 @@
+CONTRACT ADDENDUM AA-TECH-2026-R2-OPTIONS
+RESULT: PASS
+
+1. FRAME FIX
+- app/layout.tsx imports app/globals.css (import "./globals.css")
+- Body background #07080c, text #efe7dc, direction ltr (lang="en" dir="ltr")
+- No horizontal overflow on gate, chamber, or model room (overflow-x: hidden on body, max-width on panels)
+- Gate form stacks email, password, and Enter in one column (flex-direction: column) inside phone width (max-width: 480px)
+- Meridian Seal kept: one horizontal meridian line, two rings, asymmetric panel clip-path
+- Honest lines "sync is offline" and "model is offline" kept in chamber and desk
+- Both model flags shown: gpt-4o-mini and gpt-4o (select in model tab and desk toolbar)
+
+2. LOCAL DESK — 25 WORKING CONTROLS (all in chamber Desk tab, browser localStorage, no server, no new package)
+ 1. Create a folder and rename it — live
+ 2. Create a text file and type into it — live (modal editor)
+ 3. Attach a PDF and open it — live (file input → base64 → window.open Blob URL)
+ 4. Attach a document and keep it in the folder — live (file input → base64, folderId)
+ 5. Record a voice note and play it — live (MediaRecorder → base64 data URL → Audio playback)
+ 6. Add a meeting in the next 30 days — live (date input min=today max=+30d)
+ 7. Show meetings in the next 60 days — live (filtered by date range)
+ 8. Mark a meeting done or open — live (checkbox toggle)
+ 9. Checklist with tick and order — live (checkbox + Up/Down reorder)
+ 10. Tags: contract, meeting, document, urgent — live (tag toggle on folders, files, meetings, checklists + global tag filter)
+ 11. Search folders, files, and text — live (search input filters by name and file content)
+ 12. Pin an item to the top — live (pin toggle, pinned items sorted first)
+ 13. Export an item to the device — live (Blob download for text, base64-decoded download for attachments, JSON for folders)
+ 14. Fillable contract note template — live (modal form → generates text file)
+ 15. Logout button — live (POST /api/auth/logout → redirect to /)
+ 16. Model switch shows gpt-4o-mini and gpt-4o — live (select in desk toolbar)
+ 17. Honest status: sync offline, model offline — live (desk toolbar shows both)
+ 18. Ink frame locked to the phone width — live (chamber max-width: 640px, gate max-width: 480px, overflow-x: hidden)
+ 19. English labels only — live (all UI labels in English)
+ 20. Test Home lists these controls as live or blocked — live (25 controls listed, all marked "live")
+ 21. Month calendar for the meetings — live (7-column grid, meetings rendered on their dates)
+ 22. Due badge on a meeting — live (DueBadge: overdue/due today/due in Nd)
+ 23. Duplicate a file or folder — live (Duplicate button on both)
+ 24. Move a file between folders — live (Move button → folder picker modal)
+ 25. Read-only preview for a text file — live (Preview button → read-only modal)
+
+3. ACCEPTANCE
+- npm run lint: PASS (0 errors, 0 warnings)
+- npm run typecheck: PASS (tsc --noEmit, exit 0)
+- npm run build: PASS (13/13 static pages, exit 0)
+- Commit: 7f53fc2 on main
+- Push: origin main (931aac3..7f53fc2)
+- Seal: execution/options-seal.txt written
+
+No new phase opened. No new dependency added. No Supabase or OpenAI called. No secrets invented. DIRECTIVE.txt not edited.
