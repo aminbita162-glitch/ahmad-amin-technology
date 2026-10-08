@@ -1,0 +1,47 @@
+RESULT: PASS
+
+ADDENDUM AA-TECH-2026-R5 — WhatsApp-light surface
+
+SURFACE
+  - Body background changed from metallic gray gradient (#52555a→#36393e)
+    to solid WhatsApp chat background #efeae2.
+  - Chamber and test-home panel backgrounds changed from
+    rgba(58, 61, 66, 0.82) to solid #ffffff.
+  - Accent (Amin signal) changed from #9fd7ff (glacial blue) to #00a884
+    (WhatsApp teal).
+  - Ahmad signal changed from #c4a574 (oxidized copper) to #cf9466.
+  - Fault changed from #c45c4a to #e0635a.
+  - Ink changed from #3a3d42 to #54656f (blue-gray, visible on white).
+  - Ink-dark changed from #2a2d31 to #ffffff (panel/modal backgrounds).
+  - Mute changed from #b8b0a4 to #8696a0.
+  --paper now #54656f (used as text color on white panels).
+  - All rgba() overlays updated from warm dark tones to cool light tones
+    suitable for white panels on #efeae2.
+  - Modal overlay changed from dark rgba(42, 45, 49, 0.85) to light
+    rgba(84, 101, 111, 0.5).
+  - Lang-switch background changed from dark rgba(42, 45, 49, 0.7) to
+    light rgba(255, 255, 255, 0.8).
+  - No black (#000) or dark gray (#2xx, #3xx) used anywhere.
+  - Gate field stays sky blue (unchanged — R4).
+  - Gate panel stays white with gray edge (unchanged — R4).
+  - Buttons stay white with gray edge (unchanged — R4).
+
+KEEP
+  - EN/FA language switch preserved on both gate and chamber pages.
+  - English is ltr, Persian is rtl.
+  - Offline lines preserved: "sync is offline" and "model is offline"
+    (and their Persian equivalents via DESK_STR / LANG_LABELS).
+  - Thread tab, Model tab, and in-page folder name panel (NameModal)
+    all preserved.
+
+ACCEPTANCE
+  - npm run lint: PASS (exit 0, no warnings or errors)
+  - npm run typecheck: PASS (exit 0)
+  - npm run build: PASS (exit 0, 13/13 pages generated)
+  - Committed: ee16b48
+  - Pushed to origin main: 6fc05e4..ee16b48
+  - No new dependencies added.
+  - No secrets committed.
+  - No Supabase or OpenAI calls added.
+
+STOP
