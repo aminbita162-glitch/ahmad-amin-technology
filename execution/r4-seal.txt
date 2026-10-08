@@ -1,0 +1,67 @@
+AA-TECH-2026-R4 SEAL
+=====================
+DATE: 2026-10-09
+RESULT: PASS
+
+1. GATE
+- Gate field changed to bright clear sky blue:
+  linear-gradient(180deg, #87ceeb 0%, #98d8e8 40%, #b0e0f5 100%).
+  Not black. Not dark gray.
+- Gate panel changed to white (rgba(255,255,255,0.96)) with metallic
+  glossy gray edge (1px solid rgba(170,170,170,0.45)).
+- Buttons are white with metallic glossy gray edge:
+  .gate__submit { background: #ffffff; border: 1px solid #888; }.
+- Top heading is an h1. English: "Ahmad & Amin Technology".
+  Persian: "احمد و امین تکنولوژی". Translated via GATE_STR.
+- Gate kicker, subtitle, email, password, enter, error all translated.
+
+2. LANGUAGE
+- EN / FA switch kept on both gate (app/page.tsx) and chamber
+  (app/chamber/page.tsx). English is ltr. Persian is rtl.
+- Choice persists on this device via localStorage key "aa-lang".
+- Gate, chamber, thread, model, and desk labels all translated.
+
+3. DESK
+- Section buttons kept. Only one section open at a time.
+- New Folder opens an in-page name panel (NameModal). No window.prompt.
+- Rename opens an in-page name panel (NameModal). No window.prompt.
+- Attach: single "Attach" button, hidden file input with
+  accept="image/*,.pdf,.doc,.docx,.txt,.md,application/pdf" and
+  multiple attribute. Multiple files may be chosen at once.
+- A class folder shows its file count: <span className="desk__file-count">
+  next to each folder name.
+- A PDF opens in an in-page preview: iframe in a modal with the blob URL.
+  No window.open. URL revoked on close.
+- The sample Archive folder stays (localStorage aa-desk-archive-seeded).
+  New files are real user files (uploaded via Attach or created via
+  New Text / Contract Template), not generated samples.
+
+4. HONEST STATUS
+- Until the model key exists, the visible line is exactly "model is
+  offline" (English) / "مدل آفلاین است" (Persian).
+- Until Supabase exists, the visible line is exactly "sync is offline"
+  (English) / "همگام‌سازی آفلاین است" (Persian).
+- Thread and Model tabs kept.
+
+5. ACCEPTANCE
+- npm run lint: PASS (0 errors, 0 warnings)
+- npm run typecheck: PASS (exit 0)
+- npm run build: PASS (13/13 static pages, exit 0)
+- Commit: f3c1f40
+- Pushed to origin main (8ed0af7..f3c1f40)
+- No new dependencies added.
+- No secrets committed.
+- No Supabase or OpenAI calls.
+
+FILES CHANGED:
+- app/page.tsx (gate: language switch, sky blue field, white buttons,
+  translated heading, GATE_STR lookup table)
+- app/globals.css (gate-field sky blue, gate panel white, gate text/input
+  colors for light panel, lang-switch--gate light variant, desk__file-count
+  badge, desk__pdf-preview iframe style)
+- app/chamber/desk.tsx (NameModal component, new folder modal, rename modal,
+  multi-file attach with image+PDF+document acceptance, file count on
+  folders, in-page PDF preview via iframe, translated status lines,
+  openPdf returns blob URL instead of opening new tab)
+
+NEXT: STOP. Do not start another task.
