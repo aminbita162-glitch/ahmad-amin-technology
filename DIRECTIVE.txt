@@ -1,47 +1,31 @@
-CONTRACT ADDENDUM AA-TECH-2026-R2-OPTIONS
+CONTRACT ADDENDUM AA-TECH-2026-R4
 STATUS: ONE RUN ONLY. STOP AT THE END.
 
-You may do only what this file names. Do not open a new phase. Do not add a dependency. Do not call Supabase. Do not call OpenAI. Do not invent secrets. Do not edit DIRECTIVE.txt. English only.
+You may do only what this file names. Do not open a new phase. Do not add a dependency. Do not call Supabase. Do not call OpenAI. Do not invent secrets. Do not rewrite this file after you read it. English in code. Visible labels follow the language switch.
 
-1. FRAME FIX
-app/layout.tsx imports app/globals.css.
-Body background is #07080c. Text is #efe7dc. Direction is ltr.
-No horizontal overflow on the gate, chamber, or model room.
-The gate form stacks email, password, and Enter in one column inside the phone width.
-Keep the Meridian Seal: one horizontal meridian, two rings, asymmetric panel.
-Keep the honest lines "sync is offline" and "model is offline".
-Show both model flags: gpt-4o-mini and gpt-4o.
+1. GATE
+The top heading is an h1. English: Ahmad & Amin Technology. Persian: احمد و امین تکنولوژی.
+The field is bright clear sky blue. Not black. Not dark gray.
+Buttons are white with a metallic glossy gray edge. Buttons are not blue.
 
-2. LOCAL DESK, 25 WORKING CONTROLS
-Build these in the chamber. Store them in the browser on this device only. They must work with no server and no new package. A missing sync path stays labeled "sync is offline". Do not claim the brother received anything.
+2. LANGUAGE
+Keep the top EN / FA switch. English is ltr. Persian is rtl. The choice persists on this device. Translate the gate, chamber, thread, model, and desk labels.
 
-1. Create a folder and rename it.
-2. Create a text file and type into it.
-3. Attach a PDF and open it.
-4. Attach a document and keep it in the folder.
-5. Record a voice note and play it.
-6. Add a meeting in the next 30 days.
-7. Show meetings in the next 60 days.
-8. Mark a meeting done or open.
-9. Checklist with tick and order.
-10. Tags: contract, meeting, document, urgent.
-11. Search folders, files, and text.
-12. Pin an item to the top.
-13. Export an item to the device.
-14. Fillable contract note template.
-15. Logout button.
-16. Model switch shows gpt-4o-mini and gpt-4o.
-17. Honest status: sync offline, model offline.
-18. Ink frame locked to the phone width.
-19. English labels only.
-20. Test Home lists these controls as live or blocked.
-21. Month calendar for the meetings.
-22. Due badge on a meeting.
-23. Duplicate a file or folder.
-24. Move a file between folders.
-25. Read-only preview for a text file.
+3. DESK
+Keep the section buttons. Only one section is open at a time.
+New Folder opens an in-page name panel. Do not use window.prompt.
+Rename opens an in-page name panel. Do not use window.prompt.
+Attach accepts images from the gallery and documents. Multiple files may be chosen at once.
+A class folder shows its file count.
+A PDF opens in an in-page preview.
+The sample Archive folder may stay. New files must be real user files, not generated samples.
 
-3. ACCEPTANCE
+4. HONEST STATUS
+Until the model key exists, the visible line is exactly "model is offline".
+Until Supabase exists, the visible line is exactly "sync is offline".
+Keep Thread and Model.
+
+5. ACCEPTANCE
 npm run lint, npm run typecheck, and npm run build must pass.
-Commit. Push to origin main. Then stop and write execution/options-seal.txt with RESULT PASS or FAIL.
-Do not start another task.
+Commit. Push to origin main. Write execution/r4-seal.txt with RESULT PASS or FAIL.
+Then stop. Do not start another task.

@@ -127,6 +127,14 @@ const DESK_STR: Record<Lang, Record<string, string>> = {
     create: "Create",
     logout: "Logout",
     archive: "Archive",
+    syncOffline: "sync is offline",
+    syncLive: "sync is live",
+    modelOffline: "model is offline",
+    modelLive: "model is live",
+    attach: "Attach",
+    folderName: "Folder name",
+    newFolderTitle: "New Folder",
+    renameTitle: "Rename Folder",
   },
   fa: {
     folders: "پوشه‌ها",
@@ -176,6 +184,14 @@ const DESK_STR: Record<Lang, Record<string, string>> = {
     create: "ایجاد",
     logout: "خروج",
     archive: "آرشیو",
+    syncOffline: "همگام‌سازی آفلاین است",
+    syncLive: "همگام‌سازی آنلاین است",
+    modelOffline: "مدل آفلاین است",
+    modelLive: "مدل آنلاین است",
+    attach: "پیوست",
+    folderName: "نام پوشه",
+    newFolderTitle: "پوشه جدید",
+    renameTitle: "تغییر نام پوشه",
   },
 };
 
@@ -330,9 +346,9 @@ function exportFolder(folder: Folder): void {
   downloadBlob(blob, `${folder.name}.json`);
 }
 
-function openPdf(content: string): void {
+function openPdf(content: string): string | null {
   const commaIdx = content.indexOf(",");
-  if (commaIdx < 0) return;
+  if (commaIdx < 0) return null;
   const meta = content.slice(0, commaIdx);
   const b64 = content.slice(commaIdx + 1);
   const mimeMatch = meta.match(/:(.*?);/);
@@ -344,11 +360,9 @@ function openPdf(content: string): void {
       array[i] = byteString.charCodeAt(i);
     }
     const blob = new Blob([array], { type: mime });
-    const url = URL.createObjectURL(blob);
-    window.open(url, "_blank");
-    setTimeout(() => URL.revokeObjectURL(url), 60000);
+    return URL.createObjectURL(blob);
   } catch {
-    // decode failed — skip
+    return null;
   }
 }
 
@@ -517,6 +531,60 @@ function ContractForm({
 }
 
 /* ====================================================================== */
+/* NameModal — in-page name panel (R4, no window.prompt)                 */
+/* ====================================================================== */
+
+function NameModal({
+  title,
+  label,
+  initial,
+  submitLabel,
+  cancelLabel,
+  onSubmit,
+  onCancel,
+}: {
+  title: string;
+  label: string;
+  initial: string;
+  submitLabel: string;
+  cancelLabel: string;
+  onSubmit: (name: string) => void;
+  onCancel: () => void;
+}) {
+  const [value, setValue] = useState(initial);
+
+  return (
+    <div className="desk__modal">
+      <div className="desk__modal-content">
+        <h3 className="desk__modal-title">{title}</h3>
+        <label className="desk__form-field">
+          <span>{label}</span>
+          <input
+            type="text"
+            className="desk__modal-input"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            autoFocus
+            aria-label={label}
+          />
+        </label>
+        <div className="desk__modal-actions">
+          <button
+            type="button"
+            onClick={() => onSubmit(value)}
+          >
+            {submitLabel}
+          </button>
+          <button type="button" onClick={onCancel}>
+            {cancelLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ====================================================================== */
 /* Desk — 25 local controls                                               */
 /* ====================================================================== */
 
@@ -545,11 +613,15 @@ export default function Desk({
   const [recording, setRecording] = useState(false);
   const [tagFilter, setTagFilter] = useState<Tag | null>(null);
   const [sectionTab, setSectionTab] = useState<SectionTab>("folders");
+  const [newFolderModal, setNewFolderModal] = useState(false);
+  const [renameFolderId, setRenameFolderId] = useState<string | null>(null);
+  const [renameFolderName, setRenameFolderName] = useState("");
+  const [pdfPreviewUrl, setPdfPreviewUrl] = useState<string | null>(null);
+  const [pdfPreviewName, setPdfPreviewName] = useState<string>("");
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
-  const pdfInputRef = useRef<HTMLInputElement>(null);
-  const docInputRef = useRef<HTMLInputElement>(null);
+  const attachInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const existing = loadDesk();
@@ -585,13 +657,18 @@ export default function Desk({
 
   /* Folder actions (control 1, 23, 12, 13, 10) */
   const createFolder = () => {
+    setNewFolderModal(true);
+  };
+
+  const createFolderWithName = (name: string) => {
     const folder: Folder = {
       id: uid(),
-      name: "New Folder",
+      name: name.trim() || "New Folder",
       pinned: false,
       tags: [],
     };
     setData((d) => ({ ...d, folders: [...d.folders, folder] }));
+    setNewFolderModal(false);
   };
 
   const renameFolder = (id: string, name: string) => {
@@ -686,24 +763,31 @@ export default function Desk({
     e: React.ChangeEvent<HTMLInputElement>,
     kind: "pdf" | "document",
   ) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const dataUrl = reader.result as string;
-      const item: FileItem = {
-        id: uid(),
-        name: file.name,
-        kind,
-        content: dataUrl,
-        mimeType: file.type || "application/octet-stream",
-        folderId: selectedFolderId,
-        pinned: false,
-        tags: [],
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    const fileList = Array.from(files);
+    for (const file of fileList) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = reader.result as string;
+        const isPdf =
+          file.type === "application/pdf" ||
+          file.name.toLowerCase().endsWith(".pdf");
+        const fileKind: FileItem["kind"] = isPdf ? "pdf" : "document";
+        const item: FileItem = {
+          id: uid(),
+          name: file.name,
+          kind: fileKind,
+          content: dataUrl,
+          mimeType: file.type || "application/octet-stream",
+          folderId: selectedFolderId,
+          pinned: false,
+          tags: [],
+        };
+        setData((d) => ({ ...d, files: [...d.files, item] }));
       };
-      setData((d) => ({ ...d, files: [...d.files, item] }));
-    };
-    reader.readAsDataURL(file);
+      reader.readAsDataURL(file);
+    }
     e.target.value = "";
   };
 
@@ -1047,10 +1131,10 @@ export default function Desk({
           </select>
         </div>
         <p className="desk__status">
-          {syncOffline ? "sync is offline" : "sync is live"}
+          {syncOffline ? s.syncOffline : s.syncLive}
         </p>
         <p className="desk__status">
-          {modelOffline ? "model is offline" : "model is live"}
+          {modelOffline ? s.modelOffline : s.modelLive}
         </p>
         <button
           type="button"
@@ -1157,6 +1241,9 @@ export default function Desk({
                 }
               >
                 {f.pinned ? "\u{1F4CC} " : ""}{f.name}
+                <span className="desk__file-count">
+                  {data.files.filter((fi) => fi.folderId === f.id).length}
+                </span>
               </button>
               <div className="desk__item-tags">
                 {f.tags.map((t) => (
@@ -1167,8 +1254,8 @@ export default function Desk({
                 <button
                   type="button"
                   onClick={() => {
-                    const name = prompt("Rename folder:", f.name);
-                    if (name) renameFolder(f.id, name);
+                    setRenameFolderId(f.id);
+                    setRenameFolderName(f.name);
                   }}
                 >
                   {s.rename}
@@ -1207,16 +1294,9 @@ export default function Desk({
             <button
               type="button"
               className="desk__btn"
-              onClick={() => pdfInputRef.current?.click()}
+              onClick={() => attachInputRef.current?.click()}
             >
-              {s.attachPdf}
-            </button>
-            <button
-              type="button"
-              className="desk__btn"
-              onClick={() => docInputRef.current?.click()}
-            >
-              {s.attachDoc}
+              {s.attach}
             </button>
             <button
               type="button"
@@ -1228,15 +1308,10 @@ export default function Desk({
           </div>
         </div>
         <input
-          ref={pdfInputRef}
+          ref={attachInputRef}
           type="file"
-          accept=".pdf,application/pdf"
-          className="desk__file-input"
-          onChange={(e) => handleFileUpload(e, "pdf")}
-        />
-        <input
-          ref={docInputRef}
-          type="file"
+          accept="image/*,.pdf,.doc,.docx,.txt,.md,application/pdf"
+          multiple
           className="desk__file-input"
           onChange={(e) => handleFileUpload(e, "document")}
         />
@@ -1267,7 +1342,13 @@ export default function Desk({
                   </button>
                 )}
                 {f.kind === "pdf" && (
-                  <button type="button" onClick={() => openPdf(f.content)}>
+                  <button type="button" onClick={() => {
+                    const url = openPdf(f.content);
+                    if (url) {
+                      setPdfPreviewUrl(url);
+                      setPdfPreviewName(f.name);
+                    }
+                  }}>
                     {s.open}
                   </button>
                 )}
@@ -1604,6 +1685,61 @@ export default function Desk({
           onSubmit={createContractFromTemplate}
           onCancel={() => setShowContractForm(false)}
         />
+      )}
+
+      {/* New Folder in-page name panel (R4 — no window.prompt) */}
+      {newFolderModal && (
+        <NameModal
+          title={s.newFolderTitle}
+          label={s.folderName}
+          initial=""
+          submitLabel={s.create}
+          cancelLabel={s.cancel}
+          onSubmit={(name) => createFolderWithName(name)}
+          onCancel={() => setNewFolderModal(false)}
+        />
+      )}
+
+      {/* Rename folder in-page name panel (R4 — no window.prompt) */}
+      {renameFolderId && (
+        <NameModal
+          title={s.renameTitle}
+          label={s.folderName}
+          initial={renameFolderName}
+          submitLabel={s.rename}
+          cancelLabel={s.cancel}
+          onSubmit={(name) => {
+            renameFolder(renameFolderId, name);
+            setRenameFolderId(null);
+          }}
+          onCancel={() => setRenameFolderId(null)}
+        />
+      )}
+
+      {/* In-page PDF preview (R4) */}
+      {pdfPreviewUrl && (
+        <div className="desk__modal">
+          <div className="desk__modal-content">
+            <h3 className="desk__modal-title">{pdfPreviewName}</h3>
+            <iframe
+              className="desk__pdf-preview"
+              src={pdfPreviewUrl}
+              title={pdfPreviewName}
+            />
+            <div className="desk__modal-actions">
+              <button
+                type="button"
+                onClick={() => {
+                  URL.revokeObjectURL(pdfPreviewUrl);
+                  setPdfPreviewUrl(null);
+                  setPdfPreviewName("");
+                }}
+              >
+                {s.close}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

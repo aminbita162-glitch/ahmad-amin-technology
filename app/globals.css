@@ -93,16 +93,26 @@ body {
   transform: translateY(-50%);
 }
 
-/* Gate panel — asymmetric clip-path, frosted by backdrop-filter on the panel */
+/* Gate field — bright clear sky blue (R4) */
+.gate-field {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(180deg, #87ceeb 0%, #98d8e8 40%, #b0e0f5 100%);
+}
+
+/* Gate panel — asymmetric clip-path, white with metallic glossy gray edge */
 .gate {
   position: relative;
   z-index: 1;
   width: 100%;
   max-width: 480px;
   padding: 3rem 2.5rem;
-  background: rgba(58, 61, 66, 0.82);
+  background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(24px) saturate(1.1);
   -webkit-backdrop-filter: blur(24px) saturate(1.1);
+  border: 1px solid rgba(170, 170, 170, 0.45);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   clip-path: polygon(
     0 0,
     100% 0,
@@ -118,7 +128,7 @@ body {
   font-size: 0.8rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--mute);
+  color: #6a6d72;
   margin-bottom: 1.25rem;
 }
 
@@ -127,7 +137,7 @@ body {
   font-weight: 800;
   font-size: 1.75rem;
   line-height: 1.2;
-  color: var(--paper);
+  color: #2a2d31;
   margin-bottom: 1rem;
 }
 
@@ -135,7 +145,7 @@ body {
   font-family: var(--font-fa);
   font-weight: 400;
   font-size: 1rem;
-  color: var(--mute);
+  color: #6a6d72;
   line-height: 1.6;
 }
 
@@ -147,7 +157,7 @@ body {
   font-family: var(--font-en);
   font-size: 0.7rem;
   letter-spacing: 0.1em;
-  color: var(--mute);
+  color: #6a6d72;
 }
 
 .gate__seal-dot {
@@ -183,31 +193,31 @@ body {
   font-size: 0.72rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--mute);
+  color: #6a6d72;
 }
 
 .gate__input {
   font-family: var(--font-fa);
   font-size: 0.95rem;
   padding: 0.6rem 0.9rem;
-  background: rgba(239, 231, 220, 0.04);
-  color: var(--paper);
-  border: 1px solid rgba(154, 145, 134, 0.3);
+  background: rgba(245, 245, 245, 0.8);
+  color: #2a2d31;
+  border: 1px solid rgba(170, 170, 170, 0.4);
   border-radius: 0;
   outline: none;
 }
 
 .gate__input:focus {
-  border-color: var(--mute);
+  border-color: #888;
 }
 
 .gate__submit {
   font-family: var(--font-fa);
   font-size: 0.95rem;
   padding: 0.6rem 1.2rem;
-  background: transparent;
-  color: var(--paper);
-  border: 1px solid var(--paper);
+  background: #ffffff;
+  color: #2a2d31;
+  border: 1px solid #888;
   cursor: pointer;
   transition: background 0.15s ease;
   margin-top: 0.25rem;
@@ -219,7 +229,7 @@ body {
 }
 
 .gate__submit:not(:disabled):hover {
-  background: rgba(239, 231, 220, 0.08);
+  background: #f0f0f0;
 }
 
 .gate__error {
@@ -1395,6 +1405,45 @@ body {
 .lang-switch__btn--active {
   color: var(--paper);
   border-color: var(--paper);
+}
+
+/* Light variant for the gate page (sky blue field) */
+.lang-switch--gate {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(170, 170, 170, 0.35);
+}
+
+.lang-switch--gate .lang-switch__label {
+  color: #6a6d72;
+}
+
+.lang-switch--gate .lang-switch__btn {
+  color: #7a7d82;
+}
+
+.lang-switch--gate .lang-switch__btn--active {
+  color: #2a2d31;
+  border-color: #888;
+}
+
+/* Desk file count badge (R4) */
+.desk__file-count {
+  font-family: var(--font-en);
+  font-size: 0.6rem;
+  padding: 0.1rem 0.4rem;
+  background: rgba(154, 145, 134, 0.2);
+  color: var(--mute);
+  border-radius: 0;
+  margin-left: 0.3rem;
+}
+
+/* In-page PDF preview (R4) */
+.desk__pdf-preview {
+  width: 100%;
+  min-height: 400px;
+  max-height: 60vh;
+  border: 1px solid rgba(154, 145, 134, 0.3);
+  background: rgba(239, 231, 220, 0.03);
 }
 
 /* ====================================================================== */
