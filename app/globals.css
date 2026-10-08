@@ -7,9 +7,10 @@
 @import url("https://fonts.googleapis.com/css2?family=Syne:wght@600;800&family=Vazirmatn:wght@400;600&display=swap");
 
 :root {
-  --ink: #07080c;
+  --ink: #3a3d42;
+  --ink-dark: #2a2d31;
   --paper: #efe7dc;
-  --mute: #9a9186;
+  --mute: #b8b0a4;
   --amin: #9fd7ff;
   --ahmad: #c4a574;
   --fault: #c45c4a;
@@ -27,7 +28,15 @@
 
 html,
 body {
-  background-color: var(--ink);
+  background: linear-gradient(
+    135deg,
+    #52555a 0%,
+    #44474c 25%,
+    #36393e 50%,
+    #44474c 75%,
+    #52555a 100%
+  );
+  background-attachment: fixed;
   color: var(--paper);
   font-family: var(--font-fa);
   min-height: 100vh;
@@ -91,7 +100,7 @@ body {
   width: 100%;
   max-width: 480px;
   padding: 3rem 2.5rem;
-  background: rgba(7, 8, 12, 0.72);
+  background: rgba(58, 61, 66, 0.82);
   backdrop-filter: blur(24px) saturate(1.1);
   -webkit-backdrop-filter: blur(24px) saturate(1.1);
   clip-path: polygon(
@@ -229,7 +238,7 @@ body {
   width: 100%;
   max-width: 640px;
   padding: 2rem 2rem 2.5rem;
-  background: rgba(7, 8, 12, 0.72);
+  background: rgba(58, 61, 66, 0.82);
   backdrop-filter: blur(24px) saturate(1.1);
   -webkit-backdrop-filter: blur(24px) saturate(1.1);
   clip-path: polygon(
@@ -567,7 +576,7 @@ body {
   width: 100%;
   max-width: 640px;
   padding: 2rem 2rem 2.5rem;
-  background: rgba(7, 8, 12, 0.72);
+  background: rgba(58, 61, 66, 0.82);
   backdrop-filter: blur(24px) saturate(1.1);
   -webkit-backdrop-filter: blur(24px) saturate(1.1);
   clip-path: polygon(
@@ -1191,7 +1200,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(7, 8, 12, 0.8);
+  background: rgba(42, 45, 49, 0.85);
+  backdrop-filter: blur(24px) saturate(1.1);
+  -webkit-backdrop-filter: blur(24px) saturate(1.1);
   padding: 1rem;
 }
 
@@ -1200,7 +1211,7 @@ body {
   max-width: 520px;
   max-height: 80vh;
   overflow-y: auto;
-  background: var(--ink);
+  background: var(--ink-dark);
   border: 1px solid rgba(154, 145, 134, 0.3);
   padding: 1.5rem;
   display: flex;
@@ -1341,4 +1352,133 @@ body {
 .test-home__link:hover {
   color: var(--paper);
   border-color: var(--mute);
+}
+
+/* ====================================================================== */
+/* Language switch (Options R3)                                           */
+/* ====================================================================== */
+
+.lang-switch {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.6rem;
+  background: rgba(42, 45, 49, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(184, 176, 164, 0.3);
+}
+
+.lang-switch__label {
+  font-family: var(--font-en);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+
+.lang-switch__btn {
+  font-family: var(--font-en);
+  font-size: 0.7rem;
+  padding: 0.15rem 0.5rem;
+  background: transparent;
+  color: var(--mute);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.lang-switch__btn--active {
+  color: var(--paper);
+  border-color: var(--paper);
+}
+
+/* ====================================================================== */
+/* Desk section sub-tabs (Options R3)                                     */
+/* ====================================================================== */
+
+.desk__sections {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(184, 176, 164, 0.15);
+  padding-bottom: 0.5rem;
+}
+
+.desk__section-tab {
+  font-family: var(--font-en);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.8rem;
+  background: transparent;
+  color: var(--mute);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.desk__section-tab--active {
+  color: var(--paper);
+  border-color: rgba(184, 176, 164, 0.4);
+}
+
+.desk__section-tab:hover {
+  color: var(--paper);
+}
+
+/* Archive badge */
+.desk__archive-badge {
+  font-family: var(--font-en);
+  font-size: 0.6rem;
+  padding: 0.1rem 0.4rem;
+  background: rgba(159, 215, 255, 0.12);
+  color: var(--amin);
+  border: 1px solid rgba(159, 215, 255, 0.3);
+  margin-left: 0.4rem;
+}
+
+/* RTL adjustments for Persian mode */
+html[dir="rtl"] .desk__item-name,
+html[dir="rtl"] .desk__search,
+html[dir="rtl"] .desk__btn,
+html[dir="rtl"] .desk__section-tab,
+html[dir="rtl"] .lang-switch {
+  text-align: right;
+}
+
+html[dir="rtl"] .chamber__send,
+html[dir="rtl"] .gate__submit,
+html[dir="rtl"] .desk__logout {
+  margin-left: auto;
+  margin-right: 0;
+}
+
+html[dir="rtl"] .bubble--amin {
+  align-self: flex-end;
+  border-inline-start: none;
+  border-inline-end: 2px solid var(--amin);
+}
+
+html[dir="rtl"] .bubble--ahmad {
+  align-self: flex-start;
+  border-inline-end: none;
+  border-inline-start: 2px solid var(--ahmad);
+}
+
+html[dir="rtl"] .model-turn--user {
+  align-self: flex-start;
+  border-inline-end: none;
+  border-inline-start: 2px solid var(--amin);
+}
+
+html[dir="rtl"] .model-turn--assistant {
+  align-self: flex-end;
+  border-inline-start: none;
+  border-inline-end: 2px solid var(--ahmad);
 }

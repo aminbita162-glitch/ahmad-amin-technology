@@ -58,16 +58,126 @@ interface DeskData {
   checklists: Checklist[];
 }
 
+type Lang = "en" | "fa";
+
+type SectionTab = "folders" | "files" | "meetings" | "checklists" | "voice";
+
 interface DeskProps {
   modelFlag: ModelFlag;
   setModelFlag: (flag: ModelFlag) => void;
   syncOffline: boolean;
   modelOffline: boolean;
   onLogout: () => void;
+  lang: Lang;
 }
 
 const STORAGE_KEY = "aa-desk-v1";
+const ARCHIVE_SEEDED_KEY = "aa-desk-archive-seeded";
 const ALL_TAGS: Tag[] = ["contract", "meeting", "document", "urgent"];
+
+const ARCHIVE_PDF =
+  "JVBERi0xLjQKMSAwIG9iajw8L1R5cGUvQ2F0YWxvZy9QYWdlcyAyIDAgUj4+ZW5kb2JqCjIgMCBvYmo8PC9UeXBlL1BhZ2VzL0tpZHNbMyAwIFJdL0NvdW50IDE+PmVuZG9iagozIDAgb2JqPDwvVHlwZS9QYWdlL1BhcmVudCAyIDAgUi9NZWRpYUJveFswIDAgMjAwIDIwMF0+PmVuZG9iagp4cmVmCjAgNAowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA1MiAwMDAwMCBuIAowMDAwMDAwMTAxIDAwMDAwIG4gCnRyYWlsZXI8PC9TaXplIDQvUm9vdCAxIDAgUj4+CnN0YXJ0eHJlZgoxNjgKJSVFT0Y=";
+
+const DESK_STR: Record<Lang, Record<string, string>> = {
+  en: {
+    folders: "Folders",
+    files: "Files",
+    meetings: "Meetings",
+    checklists: "Checklists",
+    voice: "Voice",
+    newFolder: "New Folder",
+    newText: "New Text",
+    attachPdf: "Attach PDF",
+    attachDoc: "Attach Document",
+    contractTpl: "Contract Template",
+    meetings60: "Meetings (60 days)",
+    addMeeting: "Add Meeting",
+    meetingTitle: "Meeting title",
+    meetingDate: "Meeting date",
+    newChecklist: "New Checklist",
+    voiceNotes: "Voice Notes",
+    record: "Record",
+    stopRecording: "Stop Recording",
+    noFolders: "No folders",
+    noFiles: "No files",
+    noMeetings: "No meetings in range",
+    noChecklists: "No checklists",
+    noVoiceNotes: "No voice notes",
+    root: "Root",
+    model: "Model",
+    search: "Search folders, files, text",
+    tags: "Tags",
+    clear: "clear",
+    rename: "Rename",
+    duplicate: "Duplicate",
+    pin: "Pin",
+    unpin: "Unpin",
+    export: "Export",
+    delete: "Delete",
+    edit: "Edit",
+    preview: "Preview",
+    open: "Open",
+    play: "Play",
+    move: "Move",
+    add: "Add",
+    up: "Up",
+    down: "Down",
+    cancel: "Cancel",
+    close: "Close",
+    create: "Create",
+    logout: "Logout",
+    archive: "Archive",
+  },
+  fa: {
+    folders: "پوشه‌ها",
+    files: "فایل‌ها",
+    meetings: "جلسات",
+    checklists: "چک‌لیست",
+    voice: "صوت",
+    newFolder: "پوشه جدید",
+    newText: "متن جدید",
+    attachPdf: "افزودن PDF",
+    attachDoc: "افزودن سند",
+    contractTpl: "قالب قرارداد",
+    meetings60: "جلسات (۶۰ روز)",
+    addMeeting: "افزودن جلسه",
+    meetingTitle: "عنوان جلسه",
+    meetingDate: "تاریخ جلسه",
+    newChecklist: "چک‌لیست جدید",
+    voiceNotes: "یادداشت‌های صوتی",
+    record: "ضبط",
+    stopRecording: "توقف ضبط",
+    noFolders: "پوشه‌ای نیست",
+    noFiles: "فایلی نیست",
+    noMeetings: "جلسه‌ای در بازه نیست",
+    noChecklists: "چک‌لیستی نیست",
+    noVoiceNotes: "یادداشت صوتی نیست",
+    root: "ریشه",
+    model: "مدل",
+    search: "جستجوی پوشه‌ها، فایل‌ها، متن",
+    tags: "برچسب‌ها",
+    clear: "پاک کردن",
+    rename: "تغییر نام",
+    duplicate: "کپی",
+    pin: "سنجاق",
+    unpin: "حذف سنجاق",
+    export: "خروجی",
+    delete: "حذف",
+    edit: "ویرایش",
+    preview: "پیش‌نمایش",
+    open: "باز کردن",
+    play: "پخش",
+    move: "انتقال",
+    add: "افزودن",
+    up: "بالا",
+    down: "پایین",
+    cancel: "لغو",
+    close: "بستن",
+    create: "ایجاد",
+    logout: "خروج",
+    archive: "آرشیو",
+  },
+};
 
 /* ====================================================================== */
 /* Helpers (module level — no state)                                      */
@@ -113,6 +223,64 @@ function saveDesk(data: DeskData): boolean {
   } catch {
     return false;
   }
+}
+
+function seedArchive(): DeskData {
+  const folderId = uid();
+  const folder: Folder = {
+    id: folderId,
+    name: "Archive",
+    pinned: true,
+    tags: ["document"],
+  };
+  const pdf1: FileItem = {
+    id: uid(),
+    name: "Contract-Sample.pdf",
+    kind: "pdf",
+    content: "data:application/pdf;base64," + ARCHIVE_PDF,
+    mimeType: "application/pdf",
+    folderId,
+    pinned: false,
+    tags: ["contract", "document"],
+  };
+  const pdf2: FileItem = {
+    id: uid(),
+    name: "Meeting-Notes.pdf",
+    kind: "pdf",
+    content: "data:application/pdf;base64," + ARCHIVE_PDF,
+    mimeType: "application/pdf",
+    folderId,
+    pinned: false,
+    tags: ["meeting", "document"],
+  };
+  const doc1: FileItem = {
+    id: uid(),
+    name: "Project-Brief.txt",
+    kind: "text",
+    content:
+      "Project Brief\n=============\n\nThis is a sample document in the Archive folder.\nIt demonstrates the class archive feature: multiple PDFs and\ndocuments filed inside a named folder, all stored locally in\nthe browser.",
+    mimeType: "text/plain",
+    folderId,
+    pinned: false,
+    tags: ["document"],
+  };
+  const doc2: FileItem = {
+    id: uid(),
+    name: "Agenda.txt",
+    kind: "text",
+    content:
+      "Agenda\n======\n\n1. Review contract terms\n2. Approve meeting schedule\n3. Sign archive policy",
+    mimeType: "text/plain",
+    folderId,
+    pinned: false,
+    tags: ["meeting", "urgent"],
+  };
+  return {
+    folders: [folder],
+    files: [pdf1, pdf2, doc1, doc2],
+    meetings: [],
+    checklists: [],
+  };
 }
 
 function toggleTagArray(tags: Tag[], tag: Tag): Tag[] {
@@ -358,7 +526,9 @@ export default function Desk({
   syncOffline,
   modelOffline,
   onLogout,
+  lang,
 }: DeskProps) {
+  const s = DESK_STR[lang];
   const [data, setData] = useState<DeskData>({
     folders: [],
     files: [],
@@ -374,6 +544,7 @@ export default function Desk({
   const [showContractForm, setShowContractForm] = useState(false);
   const [recording, setRecording] = useState(false);
   const [tagFilter, setTagFilter] = useState<Tag | null>(null);
+  const [sectionTab, setSectionTab] = useState<SectionTab>("folders");
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -381,7 +552,29 @@ export default function Desk({
   const docInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setData(loadDesk());
+    const existing = loadDesk();
+    let seeded = false;
+    try {
+      seeded = localStorage.getItem(ARCHIVE_SEEDED_KEY) === "1";
+    } catch {
+      // ignore
+    }
+    if (
+      !seeded &&
+      existing.folders.length === 0 &&
+      existing.files.length === 0
+    ) {
+      const archive = seedArchive();
+      setData(archive);
+      saveDesk(archive);
+      try {
+        localStorage.setItem(ARCHIVE_SEEDED_KEY, "1");
+      } catch {
+        // ignore
+      }
+    } else {
+      setData(existing);
+    }
     setLoaded(true);
   }, []);
 
@@ -824,8 +1017,8 @@ export default function Desk({
     : null;
 
   const selectedFolderName = selectedFolderId
-    ? data.folders.find((f) => f.id === selectedFolderId)?.name ?? ""
-    : "Root";
+    ? data.folders.find((f) => f.id === selectedFolderId)?.name ?? s.root
+    : s.root;
 
   return (
     <div className="desk">
@@ -834,13 +1027,13 @@ export default function Desk({
         <input
           type="text"
           className="desk__search"
-          placeholder="Search folders, files, text"
+          placeholder={s.search}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           aria-label="search"
         />
         <div className="desk__model-switch">
-          <span className="desk__model-label">Model</span>
+          <span className="desk__model-label">{s.model}</span>
           <select
             className="desk__model-select"
             value={modelFlag}
@@ -864,13 +1057,13 @@ export default function Desk({
           className="desk__logout"
           onClick={onLogout}
         >
-          Logout
+          {s.logout}
         </button>
       </div>
 
       {/* Tag filter (control 10) */}
       <div className="desk__tags">
-        <span className="desk__tags-label">Tags:</span>
+        <span className="desk__tags-label">{s.tags}:</span>
         {ALL_TAGS.map((t) => (
           <button
             key={t}
@@ -887,17 +1080,65 @@ export default function Desk({
             className="desk__tag-clear"
             onClick={() => setTagFilter(null)}
           >
-            clear
+            {s.clear}
           </button>
         )}
       </div>
 
+      {/* Section sub-tabs — group controls so the page is not crowded */}
+      <div className="desk__sections" role="tablist" aria-label="desk sections">
+        <button
+          type="button"
+          className={`desk__section-tab${sectionTab === "folders" ? " desk__section-tab--active" : ""}`}
+          onClick={() => setSectionTab("folders")}
+          role="tab"
+        >
+          {s.folders}
+        </button>
+        <button
+          type="button"
+          className={`desk__section-tab${sectionTab === "files" ? " desk__section-tab--active" : ""}`}
+          onClick={() => setSectionTab("files")}
+          role="tab"
+        >
+          {s.files}
+        </button>
+        <button
+          type="button"
+          className={`desk__section-tab${sectionTab === "meetings" ? " desk__section-tab--active" : ""}`}
+          onClick={() => setSectionTab("meetings")}
+          role="tab"
+        >
+          {s.meetings}
+        </button>
+        <button
+          type="button"
+          className={`desk__section-tab${sectionTab === "checklists" ? " desk__section-tab--active" : ""}`}
+          onClick={() => setSectionTab("checklists")}
+          role="tab"
+        >
+          {s.checklists}
+        </button>
+        <button
+          type="button"
+          className={`desk__section-tab${sectionTab === "voice" ? " desk__section-tab--active" : ""}`}
+          onClick={() => setSectionTab("voice")}
+          role="tab"
+        >
+          {s.voice}
+        </button>
+      </div>
+
       {/* Folders (control 1, 12, 13, 23) */}
+      {sectionTab === "folders" && (
       <section className="desk__section">
         <div className="desk__section-header">
-          <h2 className="desk__heading">Folders</h2>
+          <h2 className="desk__heading">
+            {s.folders}
+            <span className="desk__archive-badge">{s.archive}</span>
+          </h2>
           <button type="button" className="desk__btn" onClick={createFolder}>
-            New Folder
+            {s.newFolder}
           </button>
         </div>
         <ul className="desk__list">
@@ -930,57 +1171,59 @@ export default function Desk({
                     if (name) renameFolder(f.id, name);
                   }}
                 >
-                  Rename
+                  {s.rename}
                 </button>
                 <button type="button" onClick={() => duplicateFolder(f.id)}>
-                  Duplicate
+                  {s.duplicate}
                 </button>
                 <button type="button" onClick={() => togglePin("folder", f.id)}>
-                  {f.pinned ? "Unpin" : "Pin"}
+                  {f.pinned ? s.unpin : s.pin}
                 </button>
                 <button type="button" onClick={() => exportFolder(f)}>
-                  Export
+                  {s.export}
                 </button>
                 <button type="button" onClick={() => deleteFolder(f.id)}>
-                  Delete
+                  {s.delete}
                 </button>
               </div>
             </li>
           ))}
           {visibleFolders.length === 0 && (
-            <li className="desk__empty">No folders</li>
+            <li className="desk__empty">{s.noFolders}</li>
           )}
         </ul>
       </section>
+      )}
 
       {/* Files (controls 2, 3, 4, 12, 13, 23, 24, 25) */}
+      {sectionTab === "files" && (
       <section className="desk__section">
         <div className="desk__section-header">
-          <h2 className="desk__heading">Files — {selectedFolderName}</h2>
+          <h2 className="desk__heading">{s.files} — {selectedFolderName}</h2>
           <div className="desk__btn-group">
             <button type="button" className="desk__btn" onClick={createTextFile}>
-              New Text
+              {s.newText}
             </button>
             <button
               type="button"
               className="desk__btn"
               onClick={() => pdfInputRef.current?.click()}
             >
-              Attach PDF
+              {s.attachPdf}
             </button>
             <button
               type="button"
               className="desk__btn"
               onClick={() => docInputRef.current?.click()}
             >
-              Attach Document
+              {s.attachDoc}
             </button>
             <button
               type="button"
               className="desk__btn"
               onClick={() => setShowContractForm(true)}
             >
-              Contract Template
+              {s.contractTpl}
             </button>
           </div>
         </div>
@@ -1015,38 +1258,38 @@ export default function Desk({
               <div className="desk__item-actions">
                 {f.kind === "text" && (
                   <button type="button" onClick={() => setEditingFileId(f.id)}>
-                    Edit
+                    {s.edit}
                   </button>
                 )}
                 {f.kind === "text" && (
                   <button type="button" onClick={() => setPreviewingFileId(f.id)}>
-                    Preview
+                    {s.preview}
                   </button>
                 )}
                 {f.kind === "pdf" && (
                   <button type="button" onClick={() => openPdf(f.content)}>
-                    Open
+                    {s.open}
                   </button>
                 )}
                 {f.kind === "voice" && (
                   <button type="button" onClick={() => playVoice(f.content)}>
-                    Play
+                    {s.play}
                   </button>
                 )}
                 <button type="button" onClick={() => duplicateFile(f.id)}>
-                  Duplicate
+                  {s.duplicate}
                 </button>
                 <button type="button" onClick={() => setMoveFileId(f.id)}>
-                  Move
+                  {s.move}
                 </button>
                 <button type="button" onClick={() => togglePin("file", f.id)}>
-                  {f.pinned ? "Unpin" : "Pin"}
+                  {f.pinned ? s.unpin : s.pin}
                 </button>
                 <button type="button" onClick={() => exportFile(f)}>
-                  Export
+                  {s.export}
                 </button>
                 <button type="button" onClick={() => deleteFile(f.id)}>
-                  Delete
+                  {s.delete}
                 </button>
               </div>
               <div className="desk__item-tags">
@@ -1064,15 +1307,17 @@ export default function Desk({
             </li>
           ))}
           {visibleFiles.length === 0 && (
-            <li className="desk__empty">No files</li>
+            <li className="desk__empty">{s.noFiles}</li>
           )}
         </ul>
       </section>
+      )}
 
       {/* Meetings (controls 6, 7, 8, 21, 22) */}
+      {sectionTab === "meetings" && (
       <section className="desk__section">
         <div className="desk__section-header">
-          <h2 className="desk__heading">Meetings (60 days)</h2>
+          <h2 className="desk__heading">{s.meetings60}</h2>
         </div>
         <form
           className="desk__meeting-form"
@@ -1089,7 +1334,7 @@ export default function Desk({
           <input
             type="text"
             name="title"
-            placeholder="Meeting title"
+            placeholder={s.meetingTitle}
             aria-label="meeting title"
             required
           />
@@ -1102,7 +1347,7 @@ export default function Desk({
             min={todayISO()}
             max={dateInDays(30)}
           />
-          <button type="submit" className="desk__btn">Add Meeting</button>
+          <button type="submit" className="desk__btn">{s.addMeeting}</button>
         </form>
         <ul className="desk__list">
           {visibleMeetings.map((m) => (
@@ -1137,24 +1382,26 @@ export default function Desk({
                   </button>
                 ))}
                 <button type="button" onClick={() => deleteMeeting(m.id)}>
-                  Delete
+                  {s.delete}
                 </button>
               </div>
             </li>
           ))}
           {visibleMeetings.length === 0 && (
-            <li className="desk__empty">No meetings in range</li>
+            <li className="desk__empty">{s.noMeetings}</li>
           )}
         </ul>
         <MonthCalendar meetings={data.meetings} />
       </section>
+      )}
 
       {/* Checklists (control 9) */}
+      {sectionTab === "checklists" && (
       <section className="desk__section">
         <div className="desk__section-header">
-          <h2 className="desk__heading">Checklists</h2>
+          <h2 className="desk__heading">{s.checklists}</h2>
           <button type="button" className="desk__btn" onClick={createChecklist}>
-            New Checklist
+            {s.newChecklist}
           </button>
         </div>
         <ul className="desk__list">
@@ -1166,10 +1413,10 @@ export default function Desk({
                 </span>
                 <div className="desk__item-actions">
                   <button type="button" onClick={() => togglePin("checklist", c.id)}>
-                    {c.pinned ? "Unpin" : "Pin"}
+                    {c.pinned ? s.unpin : s.pin}
                   </button>
                   <button type="button" onClick={() => deleteChecklist(c.id)}>
-                    Delete
+                    {s.delete}
                   </button>
                 </div>
               </div>
@@ -1185,8 +1432,8 @@ export default function Desk({
                   }
                 }}
               >
-                <input type="text" placeholder="Add item" aria-label="add checklist item" />
-                <button type="submit">Add</button>
+                <input type="text" placeholder={s.add} aria-label="add checklist item" />
+                <button type="submit">{s.add}</button>
               </form>
               <ol className="desk__checklist-items">
                 {[...c.items]
@@ -1210,13 +1457,13 @@ export default function Desk({
                           type="button"
                           onClick={() => moveChecklistItem(c.id, item.id, "up")}
                         >
-                          Up
+                          {s.up}
                         </button>
                         <button
                           type="button"
                           onClick={() => moveChecklistItem(c.id, item.id, "down")}
                         >
-                          Down
+                          {s.down}
                         </button>
                       </div>
                     </li>
@@ -1225,26 +1472,28 @@ export default function Desk({
             </li>
           ))}
           {visibleChecklists.length === 0 && (
-            <li className="desk__empty">No checklists</li>
+            <li className="desk__empty">{s.noChecklists}</li>
           )}
         </ul>
       </section>
+      )}
 
       {/* Voice notes (control 5) */}
+      {sectionTab === "voice" && (
       <section className="desk__section">
         <div className="desk__section-header">
-          <h2 className="desk__heading">Voice Notes</h2>
+          <h2 className="desk__heading">{s.voiceNotes}</h2>
           {recording ? (
             <button
               type="button"
               className="desk__btn desk__btn--stop"
               onClick={stopRecording}
             >
-              Stop Recording
+              {s.stopRecording}
             </button>
           ) : (
             <button type="button" className="desk__btn" onClick={startRecording}>
-              Record
+              {s.record}
             </button>
           )}
         </div>
@@ -1254,22 +1503,23 @@ export default function Desk({
               <span className="desk__item-name">{v.name}</span>
               <div className="desk__item-actions">
                 <button type="button" onClick={() => playVoice(v.content)}>
-                  Play
+                  {s.play}
                 </button>
                 <button type="button" onClick={() => exportFile(v)}>
-                  Export
+                  {s.export}
                 </button>
                 <button type="button" onClick={() => deleteFile(v.id)}>
-                  Delete
+                  {s.delete}
                 </button>
               </div>
             </li>
           ))}
           {voiceNotes.length === 0 && (
-            <li className="desk__empty">No voice notes</li>
+            <li className="desk__empty">{s.noVoiceNotes}</li>
           )}
         </ul>
       </section>
+      )}
 
       {/* Text editor modal (control 2) */}
       {editingFile && (
@@ -1293,7 +1543,7 @@ export default function Desk({
             />
             <div className="desk__modal-actions">
               <button type="button" onClick={() => setEditingFileId(null)}>
-                Close
+                {s.close}
               </button>
             </div>
           </div>
@@ -1310,7 +1560,7 @@ export default function Desk({
             <pre className="desk__preview">{previewingFile.content}</pre>
             <div className="desk__modal-actions">
               <button type="button" onClick={() => setPreviewingFileId(null)}>
-                Close
+                {s.close}
               </button>
             </div>
           </div>
@@ -1325,7 +1575,7 @@ export default function Desk({
             <ul className="desk__move-list">
               <li>
                 <button type="button" onClick={() => moveFile(movingFile.id, null)}>
-                  Root (no folder)
+                  {s.root}
                 </button>
               </li>
               {data.folders.map((f) => (
@@ -1341,7 +1591,7 @@ export default function Desk({
             </ul>
             <div className="desk__modal-actions">
               <button type="button" onClick={() => setMoveFileId(null)}>
-                Cancel
+                {s.cancel}
               </button>
             </div>
           </div>

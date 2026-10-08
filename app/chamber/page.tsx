@@ -30,6 +30,44 @@ import Desk from "./desk";
 
 type Tab = "thread" | "model" | "desk";
 type ModelFlag = "gpt-4o-mini" | "gpt-4o";
+type Lang = "en" | "fa";
+
+const LANG_KEY = "aa-lang";
+
+const LANG_LABELS: Record<Lang, Record<string, string>> = {
+  en: {
+    desk: "Desk",
+    thread: "Thread",
+    model: "Model",
+    syncOffline: "sync is offline",
+    syncLive: "sync is live",
+    modelOffline: "model is offline",
+    modelLive: "model is live",
+    testHome: "Test Home",
+    noMessages: "No messages",
+    typeMessage: "Type a message",
+    send: "Send",
+    modelRoom: "Model Room",
+    askModel: "Ask the model",
+    modelAbsent: "The server path is ready and the model key is absent.",
+  },
+  fa: {
+    desk: "میز کار",
+    thread: "گفت‌گو",
+    model: "مدل",
+    syncOffline: "همگام‌سازی آفلاین است",
+    syncLive: "همگام‌سازی آنلاین است",
+    modelOffline: "مدل آفلاین است",
+    modelLive: "مدل آنلاین است",
+    testHome: "خانه تست",
+    noMessages: "پیامی نیست",
+    typeMessage: "پیام بنویسید",
+    send: "ارسال",
+    modelRoom: "اتاق مدل",
+    askModel: "از مدل بپرسید",
+    modelAbsent: "مسیر سرور آماده است و کلید مدل موجود نیست.",
+  },
+};
 
 interface Bubble {
   id: number;
@@ -74,6 +112,34 @@ export default function ChamberPage() {
   const [modelOffline, setModelOffline] = useState(false);
   const [modelLoading, setModelLoading] = useState(false);
   const [modelError, setModelError] = useState<string | null>(null);
+
+  // Language switch (Options R3) — Persian / English.
+  const [lang, setLang] = useState<Lang>("en");
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(LANG_KEY);
+      if (saved === "fa" || saved === "en") {
+        setLang(saved);
+      }
+    } catch {
+      // ignore — default en
+    }
+  }, []);
+
+  const changeLang = useCallback((next: Lang) => {
+    setLang(next);
+    try {
+      localStorage.setItem(LANG_KEY, next);
+    } catch {
+      // ignore
+    }
+    const el = document.documentElement;
+    el.lang = next;
+    el.dir = next === "fa" ? "rtl" : "ltr";
+  }, []);
+
+  const t = LANG_LABELS[lang];
 
   const fetchSession = useCallback(async () => {
     try {
@@ -303,6 +369,24 @@ export default function ChamberPage() {
       <div className="meridian-line" />
       <div className="ring ring--amin" />
       <div className="ring ring--ahmad" />
+      <div className="lang-switch" aria-label="language switch">
+        <button
+          type="button"
+          className={`lang-switch__btn${lang === "en" ? " lang-switch__btn--active" : ""}`}
+          onClick={() => changeLang("en")}
+          aria-label="English"
+        >
+          EN
+        </button>
+        <button
+          type="button"
+          className={`lang-switch__btn${lang === "fa" ? " lang-switch__btn--active" : ""}`}
+          onClick={() => changeLang("fa")}
+          aria-label="Persian"
+        >
+          فا
+        </button>
+      </div>
       <main className="chamber">
         <nav className="chamber__tabs" aria-label="chamber tabs">
           <button
@@ -310,21 +394,21 @@ export default function ChamberPage() {
             className={`chamber__tab${tab === "desk" ? " chamber__tab--active" : ""}`}
             onClick={() => setTab("desk")}
           >
-            Desk
+            {t.desk}
           </button>
           <button
             type="button"
             className={`chamber__tab${tab === "thread" ? " chamber__tab--active" : ""}`}
             onClick={() => setTab("thread")}
           >
-            Thread
+            {t.thread}
           </button>
           <button
             type="button"
             className={`chamber__tab${tab === "model" ? " chamber__tab--active" : ""}`}
             onClick={() => setTab("model")}
           >
-            Model
+            {t.model}
           </button>
         </nav>
 
@@ -335,20 +419,21 @@ export default function ChamberPage() {
             syncOffline={syncOffline}
             modelOffline={modelOffline}
             onLogout={logout}
+            lang={lang}
           />
         )}
 
         {tab === "thread" && (
           <>
             <header className="chamber__header">
-              <h1 className="chamber__title">Thread</h1>
+              <h1 className="chamber__title">{t.thread}</h1>
               <p className="chamber__sync">
-                {syncOffline ? "sync is offline" : "sync is live"}
+                {syncOffline ? t.syncOffline : t.syncLive}
               </p>
             </header>
             <div className="chamber__thread" aria-label="message thread">
               {bubbles.length === 0 && (
-                <p className="chamber__empty">No messages</p>
+                <p className="chamber__empty">{t.noMessages}</p>
               )}
               {bubbles.map((b) => (
                 <div
@@ -369,12 +454,12 @@ export default function ChamberPage() {
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 maxLength={4000}
-                placeholder="Type a message"
+                placeholder={t.typeMessage}
                 disabled={!sessionHandle}
                 aria-label="message input"
               />
               <button type="submit" className="chamber__send" disabled={!sessionHandle || !draft.trim()}>
-                Send
+                {t.send}
               </button>
             </form>
             {unsent.length > 0 && (
@@ -390,16 +475,16 @@ export default function ChamberPage() {
                 </ul>
               </div>
             )}
-            <a href="/test-home" className="chamber__link">Test Home</a>
+            <a href="/test-home" className="chamber__link">{t.testHome}</a>
           </>
         )}
 
         {tab === "model" && (
           <>
             <header className="chamber__header">
-              <h1 className="chamber__title">Model Room</h1>
+              <h1 className="chamber__title">{t.modelRoom}</h1>
               <p className="chamber__sync">
-                {modelOffline ? "model is offline" : "model is live"}
+                {modelOffline ? t.modelOffline : t.modelLive}
               </p>
             </header>
             <div className="chamber__model-controls">
@@ -423,8 +508,8 @@ export default function ChamberPage() {
               {modelHistory.length === 0 && (
                 <p className="chamber__empty">
                   {modelOffline
-                    ? "The server path is ready and the model key is absent."
-                    : "Ask the model"}
+                    ? t.modelAbsent
+                    : t.askModel}
                 </p>
               )}
               {modelHistory.map((m) => (
@@ -457,7 +542,7 @@ export default function ChamberPage() {
                 value={modelDraft}
                 onChange={(e) => setModelDraft(e.target.value)}
                 maxLength={4000}
-                placeholder="Ask the model"
+                placeholder={t.askModel}
                 disabled={!sessionHandle || modelLoading}
                 aria-label="model input"
               />
@@ -466,7 +551,7 @@ export default function ChamberPage() {
                 className="chamber__send"
                 disabled={!sessionHandle || !modelDraft.trim() || modelLoading}
               >
-                {modelLoading ? "..." : "Send"}
+                {modelLoading ? "..." : t.send}
               </button>
             </form>
           </>
