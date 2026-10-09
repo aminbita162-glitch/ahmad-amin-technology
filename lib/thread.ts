@@ -2,22 +2,35 @@ import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import type { Handle } from "@/lib/session";
 
 /**
- * Phase 4 — Data Seal: server-side thread reader stub.
+ * Phase 4 + R7 — Data Seal: server-side thread + chat reader.
  *
- * The Supabase URL and anon key are read from the environment. No
- * service-role key is ever referenced here. If the env is empty, the
- * reader stays null and callers must treat the thread as offline.
+ * The server sync path reads three values from the environment:
+ *   NEXT_PUBLIC_SUPABASE_URL
+ *   NEXT_PUBLIC_SUPABASE_ANON_KEY
+ *   SUPABASE_SERVICE_ROLE_KEY
  *
- * The live schema (supabase/schema.sql) is NOT applied by the worker.
- * It is BLOCKED until a human runs the script. This module builds the
- * code path so Phase 5 can wire the thread route once the database is
- * live.
+ * If any of the three is empty, the sync path stays offline. The
+ * route returns offline:true and the UI shows the honest line:
+ * "The server path is ready. Sync waits for Supabase."
+ *
+ * The service-role key is read server-side only — it is never in
+ * the client bundle (no NEXT_PUBLIC_ prefix). Only the service
+ * client uses it; the anon client (used by the browser) does not.
  */
 
 export interface MessageRow {
   id: number;
+  chat_id: number | null;
   sender: Handle;
   body: string;
+  created_at: string;
+}
+
+export interface ChatRow {
+  id: number;
+  handle: Handle;
+  name: string;
+  pinned: boolean;
   created_at: string;
 }
 
@@ -34,16 +47,41 @@ function supabaseAnonKey(): string {
   return process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
 }
 
-export function isSupabaseConfigured(): boolean {
-  return supabaseUrl() !== "" && supabaseAnonKey() !== "";
+function supabaseServiceRoleKey(): string {
+  return process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
 }
 
+/**
+ * True only when ALL three Supabase env values are present.
+ * The server sync path uses this gate.
+ */
+export function isSupabaseConfigured(): boolean {
+  return (
+    supabaseUrl() !== "" &&
+    supabaseAnonKey() !== "" &&
+    supabaseServiceRoleKey() !== ""
+  );
+}
+
+/**
+ * Anon client (browser-side). Uses only the anon key.
+ */
 export function createThreadClient(): SupabaseClient | null {
   const url = supabaseUrl();
   const anonKey = supabaseAnonKey();
   if (!url || !anonKey) return null;
-  // Anon key only. The service-role key never enters client code.
   return createClient(url, anonKey);
+}
+
+/**
+ * Service client (server-side only). Uses the service-role key.
+ * Never referenced from client code — the key is server-only.
+ */
+export function createServiceClient(): SupabaseClient | null {
+  const url = supabaseUrl();
+  const serviceKey = supabaseServiceRoleKey();
+  if (!url || !serviceKey) return null;
+  return createClient(url, serviceKey);
 }
 
 export async function readMessages(
@@ -52,7 +90,7 @@ export async function readMessages(
 ): Promise<MessageRow[]> {
   const { data, error } = await client
     .from("messages")
-    .select("id, sender, body, created_at")
+    .select("id, chat_id, sender, body, created_at")
     .order("created_at", { ascending: true })
     .limit(limit);
   if (error) return [];
@@ -61,23 +99,102 @@ export async function readMessages(
 
 /**
  * Insert a message server-side. The body length is enforced here (1-4000)
- * so the route never sends a oversized payload to Postgres even if the
+ * so the route never sends an oversized payload to Postgres even if the
  * client bypasses the schema check. Returns the new row or null on error.
  */
 export async function writeMessage(
   client: SupabaseClient,
   sender: Handle,
   body: string,
+  chatId?: number,
 ): Promise<MessageRow | null> {
   if (body.length < 1 || body.length > 4000) return null;
   if (sender !== "amin" && sender !== "ahmad") return null;
+  const payload: Record<string, unknown> = { sender, body };
+  if (typeof chatId === "number" && chatId > 0) {
+    payload.chat_id = chatId;
+  }
   const { data, error } = await client
     .from("messages")
-    .insert({ sender, body })
-    .select("id, sender, body, created_at")
+    .insert(payload)
+    .select("id, chat_id, sender, body, created_at")
     .single();
   if (error) return null;
   return data as unknown as MessageRow;
+}
+
+/**
+ * Insert a named chat server-side. Returns the new row or null on error.
+ */
+export async function writeChat(
+  client: SupabaseClient,
+  handle: Handle,
+  name: string,
+): Promise<ChatRow | null> {
+  if (handle !== "amin" && handle !== "ahmad") return null;
+  if (name.length < 1 || name.length > 200) return null;
+  const { data, error } = await client
+    .from("chats")
+    .insert({ handle, name })
+    .select("id, handle, name, pinned, created_at")
+    .single();
+  if (error) return null;
+  return data as unknown as ChatRow;
+}
+
+/**
+ * Update a chat's name or pinned state. Returns the updated row or null.
+ */
+export async function updateChat(
+  client: SupabaseClient,
+  chatId: number,
+  patch: Partial<Pick<ChatRow, "name" | "pinned">>,
+): Promise<ChatRow | null> {
+  const updatePayload: Record<string, unknown> = {};
+  if (typeof patch.name === "string") {
+    if (patch.name.length < 1 || patch.name.length > 200) return null;
+    updatePayload.name = patch.name;
+  }
+  if (typeof patch.pinned === "boolean") {
+    updatePayload.pinned = patch.pinned;
+  }
+  if (Object.keys(updatePayload).length === 0) return null;
+  const { data, error } = await client
+    .from("chats")
+    .update(updatePayload)
+    .eq("id", chatId)
+    .select("id, handle, name, pinned, created_at")
+    .single();
+  if (error) return null;
+  return data as unknown as ChatRow;
+}
+
+/**
+ * Delete a chat and all its messages (cascade).
+ */
+export async function deleteChat(
+  client: SupabaseClient,
+  chatId: number,
+): Promise<boolean> {
+  const { error } = await client.from("chats").delete().eq("id", chatId);
+  return !error;
+}
+
+/**
+ * Read all chats for a handle, ordered pinned first then created_at.
+ */
+export async function readChats(
+  client: SupabaseClient,
+  handle: Handle,
+): Promise<ChatRow[]> {
+  const { data, error } = await client
+    .from("chats")
+    .select("id, handle, name, pinned, created_at")
+    .eq("handle", handle)
+    .order("pinned", { ascending: false })
+    .order("created_at", { ascending: true });
+  if (error) return [];
+  return (data ?? []) as unknown as ChatRow[];
 }
 
 /**

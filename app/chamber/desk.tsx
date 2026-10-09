@@ -127,7 +127,7 @@ const DESK_STR: Record<Lang, Record<string, string>> = {
     create: "Create",
     logout: "Logout",
     archive: "Archive",
-    syncOffline: "sync is offline",
+    syncReady: "The server path is ready. Sync waits for Supabase.",
     syncLive: "sync is live",
     modelOffline: "model is offline",
     modelLive: "model is live",
@@ -184,7 +184,7 @@ const DESK_STR: Record<Lang, Record<string, string>> = {
     create: "ایجاد",
     logout: "خروج",
     archive: "آرشیو",
-    syncOffline: "همگام‌سازی آفلاین است",
+    syncReady: "مسیر سرور آماده است. همگام‌سازی منتظر Supabase است.",
     syncLive: "همگام‌سازی آنلاین است",
     modelOffline: "مدل آفلاین است",
     modelLive: "مدل آنلاین است",
@@ -1131,7 +1131,7 @@ export default function Desk({
           </select>
         </div>
         <p className="desk__status">
-          {syncOffline ? s.syncOffline : s.syncLive}
+          {syncOffline ? s.syncReady : s.syncLive}
         </p>
         <p className="desk__status">
           {modelOffline ? s.modelOffline : s.modelLive}

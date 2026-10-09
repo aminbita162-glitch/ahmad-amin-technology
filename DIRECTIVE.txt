@@ -1,31 +1,50 @@
-CONTRACT ADDENDUM AA-TECH-2026-R4
+CONTRACT ADDENDUM AA-TECH-2026-R7
 STATUS: ONE RUN ONLY. STOP AT THE END.
 
-You may do only what this file names. Do not open a new phase. Do not add a dependency. Do not call Supabase. Do not call OpenAI. Do not invent secrets. Do not rewrite this file after you read it. English in code. Visible labels follow the language switch.
+You may do only what this file names. Do not invent secrets. Do not call a paid API during the build. Do not rewrite this file. English in code. Visible labels follow EN and FA.
 
-1. GATE
-The top heading is an h1. English: Ahmad & Amin Technology. Persian: احمد و امین تکنولوژی.
-The field is bright clear sky blue. Not black. Not dark gray.
-Buttons are white with a metallic glossy gray edge. Buttons are not blue.
+1. HONEST LINES
+The model line says the model is live.
+Remove the Test Home link.
+Remove the sync-is-offline line. The sync path waits for Supabase. Do not claim live sync.
 
-2. LANGUAGE
-Keep the top EN / FA switch. English is ltr. Persian is rtl. The choice persists on this device. Translate the gate, chamber, thread, model, and desk labels.
+2. MODEL ROOM
+A left menu has Projects, New chat, and Files.
+Chats are separate and named. Rename, pin, search, and save them on this device.
+Move a chat into a file.
+Do not keep every topic in one thread.
+Composer: mic, moving line, stop tick, send arrow.
+Under each reply: copy, share, like, dislike, listen.
+Attach a PDF or a text source to the active chat.
+Add a web-search action, an image action, and an app-built PDF export.
+Cache a repeated prompt on this device. Do not send it again.
+Default model stays gpt-4o-mini. gpt-4o remains a switch.
+Show the session spend.
 
-3. DESK
-Keep the section buttons. Only one section is open at a time.
-New Folder opens an in-page name panel. Do not use window.prompt.
-Rename opens an in-page name panel. Do not use window.prompt.
-Attach accepts images from the gallery and documents. Multiple files may be chosen at once.
-A class folder shows its file count.
-A PDF opens in an in-page preview.
-The sample Archive folder may stay. New files must be real user files, not generated samples.
+3. THREAD
+New named chats between Amin and Ahmad. Rename, share, and copy a chat.
+Voice may be sent, or transcribed and then sent.
+Attach a gallery image or a document beside the text.
+Remove the Test Home line.
 
-4. HONEST STATUS
-Until the model key exists, the visible line is exactly "model is offline".
-Until Supabase exists, the visible line is exactly "sync is offline".
-Keep Thread and Model.
+4. DESK
+Labels are large enough for a phone.
+A left three-line menu has six entries. One section is open at a time.
+Tags filter the open section.
+Voice plays, with duration and speed.
+Checklist items move up and down, tick, pin, and show progress.
+A meeting has a title, date, time, and a file attach.
+Uploaded files keep their real names. Remove empty sample files.
+A folder shows its count. PDF and image preview stay in the page.
 
-5. ACCEPTANCE
+5. SUPABASE CODE ONLY
+Add schema.sql for profiles, chats, and messages.
+Add the server path that will sync when the three values exist.
+Leave NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, and SUPABASE_SERVICE_ROLE_KEY empty.
+Do not invent them.
+
+6. ACCEPTANCE
+Every named button must have a working handler.
 npm run lint, npm run typecheck, and npm run build must pass.
-Commit. Push to origin main. Write execution/r4-seal.txt with RESULT PASS or FAIL.
-Then stop. Do not start another task.
+Commit. Push to origin main. Write execution/r7-seal.txt with RESULT PASS or FAIL.
+Then stop.
