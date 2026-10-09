@@ -1,0 +1,76 @@
+CONTRACT ADDENDUM AA-TECH-2026-R7
+SEAL: execution/r7-seal.txt
+RESULT: PASS
+
+1. HONEST LINES
+   - The model line says the model is live (modelLive label).
+   - The Test Home link is removed from the Thread tab.
+   - The sync-is-offline line is replaced with: "The server path
+     is ready. Sync waits for Supabase." (syncReady label, EN + FA).
+     The sync path waits for Supabase — does not claim live sync.
+
+2. MODEL ROOM
+   - Left menu has Projects, New chat, and Files (modelroom__menu).
+   - Chats are separate and named. Rename, pin, search, save, and
+     move-to-file are all live with working handlers.
+   - Do not keep every topic in one thread — each model chat is
+     isolated with its own turns and attachments.
+   - Composer: mic button, moving line (3 bouncing dots), transcribe
+     tick, send arrow (→).
+   - Under each assistant reply: copy, share, like, dislike, listen.
+     All have working handlers (clipboard, navigator.share, state
+     toggle, speechSynthesis).
+   - Attach a PDF or a text source to the active chat (file input,
+     accept .pdf,.txt,.md,image/*, multiple).
+   - Web-search action, image action, and app-built PDF export
+     are in the action bar with working handlers.
+   - A repeated prompt is cached on this device (localStorage key
+     aa-cached-prompt-v1) — if the same prompt is sent again, it
+     shows "Cached — not sent again" and does not call the API.
+   - Default model stays gpt-4o-mini. gpt-4o remains a switch.
+   - Session spend is shown ($X.XXXX, tracked in localStorage
+     key aa-spend-v1).
+
+3. THREAD
+   - New named chats between Amin and Ahmad. Rename, share, and
+     copy a chat — all with working handlers.
+   - Voice may be sent (MediaRecorder), or transcribed and then
+     sent (Web Speech API).
+   - Attach a gallery image or a document beside the text (file
+     input, accept image/*,.pdf,.doc,.docx,.txt,.md, multiple).
+   - The Test Home line is removed from the thread.
+
+4. DESK
+   - Labels are large enough for a phone (@media max-width 640px
+     increases font sizes and padding on menu buttons and actions).
+   - Left three-line menu has six entries: Projects, New chat, Files,
+     plus the three chamber tabs (Desk, Thread, Model). One section
+     is open at a time (tab state).
+   - Tags filter the open section (existing desk tag filter).
+   - Voice plays, with duration and speed (existing voice controls).
+   - Checklist items move up and down, tick, pin, and show progress.
+   - A meeting has a title, date, time, and a file attach.
+   - Uploaded files keep their real names. Empty sample files are
+     not created — the archive seed has real sample files only.
+   - A folder shows its count (file count badge). PDF and image
+     preview stay in the page (in-page iframe + preview modal).
+
+5. SUPABASE CODE ONLY
+   - schema.sql has profiles, chats, and messages tables with RLS,
+     grants, and realtime publication for both messages and chats.
+   - The server path (lib/thread.ts + app/api/messages/route.ts)
+     syncs when all three values exist: NEXT_PUBLIC_SUPABASE_URL,
+     NEXT_PUBLIC_SUPABASE_ANON_KEY, and SUPABASE_SERVICE_ROLE_KEY.
+   - isSupabaseConfigured() checks all three. createServiceClient()
+     uses the service-role key (server-only, no NEXT_PUBLIC_ prefix).
+   - The three env values are left empty. None are invented.
+
+6. ACCEPTANCE
+   - Every named button has a working handler (onClick / onSubmit).
+   - npm run lint: PASS (0 errors, 0 warnings).
+   - npm run typecheck: PASS (0 errors).
+   - npm run build: PASS (13/13 pages, exit 0).
+   - Commit: dce594d on main.
+   - Pushed to origin main.
+
+NEXT: STOP.
